@@ -5,6 +5,12 @@ date: "2026-08-12"
 type: "Experimental Physics"
 abstract: "A controlled investigation into the persistent domestic uncertainty surrounding the operational status of the refrigerator light when the refrigerator door is closed."
 reviewer: "Dr. Winifred P. Spoon, FJUA"
+keywords:
+  - refrigerators
+  - domestic technology
+  - light bulbs
+  - epistemology
+  - unverifiable phenomena
 ---
 
 ## Abstract
