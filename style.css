@@ -580,6 +580,7 @@ a {
   line-height: 1.5;
 }
 
+
 /* Rule */
 
 .article-rule {
@@ -836,6 +837,19 @@ a {
 
 .disclosure p:not(.section-label) {
   color: var(--muted);
+}
+
+
+/* =========================================================
+   IMPACT FACTOR
+========================================================= */
+
+.impact-banner {
+  margin-top: 4rem;
+}
+
+.about-metrics {
+  margin-top: 4rem;
 }
 
 
