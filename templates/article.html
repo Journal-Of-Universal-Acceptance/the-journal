@@ -3,39 +3,80 @@
   <div class="container">
 
     <div class="article-breadcrumb">
-      <a href="../index.html">The Journal of Universal Acceptance</a>
-      <span>/</span>
-      <a href="../articles.html">Volume 1, Issue 1</a>
-      <span>/</span>
-      <span>Article</span>
+      <a href="../index.html">
+        The Journal of Universal Acceptance
+      </a>
+
+      <span>›</span>
+
+      <a href="../articles.html">
+        Article Archive
+      </a>
+
+      <span>›</span>
+
+      <span>Volume 1, Issue 1</span>
     </div>
 
 
     <header class="article-header">
 
-      <p class="article-type">
-        {{TYPE}}
-      </p>
+      <div class="article-header-top">
+
+        <span class="article-type">
+          {{TYPE}}
+        </span>
+
+        <span class="article-open-access">
+          OPEN ACCESS
+        </span>
+
+      </div>
+
 
       <h1 class="article-title">
         {{TITLE}}
       </h1>
 
-      <div class="article-meta">
 
-        <div>
-          <span class="meta-label">AUTHOR</span>
-          <strong>{{AUTHOR}}</strong>
+      <div class="article-byline">
+
+        <div class="byline-author">
+
+          <span class="meta-label">
+            AUTHOR
+          </span>
+
+          <strong>
+            {{AUTHOR}}
+          </strong>
+
         </div>
 
-        <div>
-          <span class="meta-label">PUBLISHED</span>
-          <strong>{{DATE}}</strong>
+
+        <div class="byline-date">
+
+          <span class="meta-label">
+            PUBLISHED
+          </span>
+
+          <strong>
+            {{DATE}}
+          </strong>
+
         </div>
 
-        <div>
-          <span class="meta-label">ISSUE</span>
-          <strong>Volume 1, Issue 1</strong>
+
+        <div class="byline-issue">
+
+          <span class="meta-label">
+            ISSUE
+          </span>
+
+          <strong>
+            Vol. 1, No. 1
+          </strong>
+
         </div>
 
       </div>
@@ -43,22 +84,26 @@
     </header>
 
 
+    <div class="article-rule"></div>
+
+
     <div class="article-layout">
+
 
       <aside class="article-sidebar">
 
         <div class="sidebar-block">
 
           <span class="sidebar-label">
-            ARTICLE INFORMATION
+            ARTICLE
           </span>
 
           <p>
-            Open Access
+            Research Publication
           </p>
 
           <p>
-            Published by JUA
+            Open Access
           </p>
 
         </div>
@@ -71,10 +116,27 @@
           </span>
 
           <p class="citation">
+
             {{AUTHOR}}.
             "{{TITLE}}."
-            <em>The Journal of Universal Acceptance</em>,
+            <em>
+              The Journal of Universal Acceptance
+            </em>,
             vol. 1, no. 1, {{DATE}}.
+
+          </p>
+
+        </div>
+
+
+        <div class="sidebar-block sidebar-note">
+
+          <span class="sidebar-label">
+            EDITORIAL STATUS
+          </span>
+
+          <p>
+            Accepted for publication.
           </p>
 
         </div>
@@ -84,11 +146,12 @@
 
       <article class="article-content">
 
+
         <section class="article-abstract">
 
-          <p class="abstract-label">
-            ABSTRACT
-          </p>
+          <div class="abstract-heading">
+            Abstract
+          </div>
 
           <p>
             {{ABSTRACT}}
@@ -106,17 +169,20 @@
 
         <footer class="article-end">
 
-          <div class="article-end-rule"></div>
+          <div class="article-end-mark">
+            ◆
+          </div>
 
           <p>
-            End of article.
+            End of article
           </p>
 
           <a href="../articles.html">
-            ← Return to article archive
+            ← Back to article archive
           </a>
 
         </footer>
+
 
       </article>
 
