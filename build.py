@@ -19,6 +19,87 @@ SITE_TITLE = "The Journal of Universal Acceptance"
 
 
 # ============================================================
+# PUBLICATION SYSTEM
+# ============================================================
+
+def get_publication_info(date):
+    """
+    Calculate the journal volume and issue from an article date.
+
+    The Journal of Universal Acceptance publishes:
+
+    Volume 1:
+        August 2026 - July 2027
+
+    Each volume contains six bimonthly issues:
+
+        Issue 1: August - September
+        Issue 2: October - November
+        Issue 3: December - January
+        Issue 4: February - March
+        Issue 5: April - May
+        Issue 6: June - July
+
+    A new volume begins every August.
+
+    The article's publication date is the only information
+    that needs to be entered manually.
+    """
+
+    year = date.year
+    month = date.month
+
+    # The publication year begins in August.
+    if month >= 8:
+        publication_year = year
+    else:
+        publication_year = year - 1
+
+    # Volume 1 begins in August 2026.
+    volume = publication_year - 2025
+
+    # August/September = Issue 1
+    issue = ((month - 8) % 12) // 2 + 1
+
+    month_names = [
+        "August",
+        "September",
+        "October",
+        "November",
+        "December",
+        "January",
+        "February",
+        "March",
+        "April",
+        "May",
+        "June",
+        "July",
+    ]
+
+    issue_start_index = ((issue - 1) * 2)
+
+    issue_start = month_names[issue_start_index]
+    issue_end = month_names[issue_start_index + 1]
+
+    # December-January crosses a calendar year.
+    if issue == 3:
+        issue_period = f"{issue_start} {year} – {issue_end} {year + 1}"
+    elif issue in (4, 5, 6):
+        issue_period = f"{issue_start} {year} – {issue_end} {year}"
+    else:
+        issue_period = f"{issue_start} {year} – {issue_end} {year}"
+
+    return {
+        "volume": volume,
+        "issue": issue,
+        "volume_label": f"Volume {volume}",
+        "issue_label": f"Issue {issue}",
+        "volume_issue": f"Volume {volume}, Issue {issue}",
+        "issue_period": issue_period,
+    }
+
+
+# ============================================================
 # FILE HELPERS
 # ============================================================
 
@@ -394,6 +475,12 @@ def read_articles():
                 f"Could not create URL slug for: {path}"
             )
 
+        # Calculate publication information
+
+        publication = get_publication_info(
+            date
+        )
+
         # Store article
 
         articles.append(
@@ -412,6 +499,15 @@ def read_articles():
                 "content": markdown_to_html(
                     markdown
                 ),
+
+                # Publication information
+
+                "volume": publication["volume"],
+                "issue": publication["issue"],
+                "volume_label": publication["volume_label"],
+                "issue_label": publication["issue_label"],
+                "volume_issue": publication["volume_issue"],
+                "issue_period": publication["issue_period"],
             }
         )
 
@@ -612,6 +708,10 @@ def article_card(article):
     {escape(article["type"])}
   </div>
 
+  <div class="article-card-issue">
+    {escape(article["volume_issue"])}
+  </div>
+
   <h3>
     {escape(article["title"])}
   </h3>
@@ -654,6 +754,11 @@ def build_homepage(articles):
             for article in latest
         )
 
+        current = latest[0]
+
+        current_issue = current["volume_issue"]
+        current_period = current["issue_period"]
+
     else:
 
         cards = """
@@ -661,6 +766,9 @@ def build_homepage(articles):
   No articles have been published yet.
 </p>
 """
+
+        current_issue = "Volume 1, Issue 1"
+        current_period = "August–September 2026"
 
     body = f"""
 <section class="journal-banner">
@@ -696,12 +804,16 @@ def build_homepage(articles):
     <div>
 
       <p class="section-label">
-        LATEST ARTICLES
+        CURRENT ISSUE
       </p>
 
       <h2>
-        Volume 1, Issue 1
+        {escape(current_issue)}
       </h2>
+
+      <p class="issue-period">
+        {escape(current_period)}
+      </p>
 
     </div>
 
@@ -857,6 +969,18 @@ def build_article_pages(articles):
             ),
             "{{REVIEWER}}": escape(
                 article["reviewer"]
+            ),
+            "{{VOLUME}}": escape(
+                article["volume_label"]
+            ),
+            "{{ISSUE}}": escape(
+                article["issue_label"]
+            ),
+            "{{VOLUME_ISSUE}}": escape(
+                article["volume_issue"]
+            ),
+            "{{ISSUE_PERIOD}}": escape(
+                article["issue_period"]
             ),
             "{{CONTENT}}": article["content"],
         }
