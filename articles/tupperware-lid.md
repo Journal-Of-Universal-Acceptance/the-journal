@@ -3,7 +3,7 @@ title: "Toward a Unified Theory of the Missing Tupperware Lid"
 author: "Prof. Reginald P. Puddifoot"
 date: "2026-08-24"
 type: "Research Article"
-abstract: "..."
+abstract: "A preliminary investigation into the persistent disappearance of Tupperware lids within domestic and institutional environments."
 submitted: "2026-08-20"
 accepted: "2026-08-24"
 keywords:
