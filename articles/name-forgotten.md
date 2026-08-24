@@ -5,6 +5,12 @@ date: "2026-08-06"
 type: "Social Psychology"
 abstract: "An interdisciplinary examination of the awkward social strategies employed when an individual's name has disappeared from memory moments after introduction."
 reviewer: "Prof. Archibald N. Teaspoon, FJUA"
+keywords:
+  - memory
+  - names
+  - recall
+  - social cognition
+  - tip-of-the-tongue phenomena
 ---
 
 ## Abstract
