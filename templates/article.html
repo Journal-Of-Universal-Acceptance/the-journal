@@ -42,7 +42,9 @@
 
 
       <p class="article-publication">
-        {{VOLUME_ISSUE}} &nbsp; · &nbsp; {{ISSUE_PERIOD}}
+        {{VOLUME_ISSUE}}
+        &nbsp; · &nbsp;
+        {{ISSUE_PERIOD}}
       </p>
 
 
@@ -99,6 +101,7 @@
 
       <aside class="article-sidebar">
 
+
         <div class="sidebar-block">
 
           <span class="sidebar-label">
@@ -140,6 +143,32 @@
         <div class="sidebar-block">
 
           <span class="sidebar-label">
+            IDENTIFIER
+          </span>
+
+          <p class="doi">
+
+            <strong>
+              DOI
+            </strong>
+
+            <br>
+
+            {{DOI}}
+
+          </p>
+
+          <p class="doi-note">
+            Fictional identifier assigned for
+            illustrative purposes.
+          </p>
+
+        </div>
+
+
+        <div class="sidebar-block">
+
+          <span class="sidebar-label">
             PEER REVIEW
           </span>
 
@@ -171,6 +200,7 @@
             </em>,
             {{VOLUME_ISSUE}},
             {{DATE}}.
+            DOI: {{DOI}}.
 
           </p>
 
@@ -188,6 +218,7 @@
           </p>
 
         </div>
+
 
       </aside>
 
@@ -230,6 +261,10 @@
             the journal's commitment to universal acceptance.
           </p>
 
+          <p class="doi-footer">
+            DOI: {{DOI}}
+          </p>
+
           <a href="../articles.html">
             ← Back to article archive
           </a>
@@ -238,6 +273,7 @@
 
 
       </article>
+
 
     </div>
 
