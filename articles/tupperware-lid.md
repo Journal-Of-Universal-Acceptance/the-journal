@@ -8,7 +8,7 @@ abstract: "A preliminary investigation into the persistent disappearance of Tupp
 
 
 
-\## Abstract
+## Abstract
 
 
 
@@ -28,7 +28,7 @@ Further investigation is recommended.
 
 
 
-\## Introduction
+## Introduction
 
 
 
@@ -44,7 +44,7 @@ The authors therefore propose that the missing lid should no longer be treated a
 
 
 
-\## Conclusion
+## Conclusion
 
 
 
