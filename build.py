@@ -444,14 +444,11 @@ date: "2026-08-24"
             metadata["title"]
         )
 
-        if not slug:
+if not slug:
 
-            raise ValueError(
-                f"Could not create URL slug for:
-
-{path}
-"
-            )
+    raise ValueError(
+        f"Could not create URL slug for:\n\n{path}"
+    )
 
         # ----------------------------------------------------
         # Store article
