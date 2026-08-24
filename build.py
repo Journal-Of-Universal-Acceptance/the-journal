@@ -1,6 +1,7 @@
 from pathlib import Path
 from html import escape
 from datetime import datetime
+import hashlib
 import re
 import shutil
 
@@ -26,10 +27,7 @@ def get_publication_info(date):
     """
     Calculate the journal volume and issue from an article date.
 
-    The Journal of Universal Acceptance publishes:
-
-    Volume 1:
-        August 2026 - July 2027
+    Each volume runs from August through July.
 
     Each volume contains six bimonthly issues:
 
@@ -39,55 +37,29 @@ def get_publication_info(date):
         Issue 4: February - March
         Issue 5: April - May
         Issue 6: June - July
-
-    A new volume begins every August.
-
-    The article's publication date is the only information
-    that needs to be entered manually.
     """
 
     year = date.year
     month = date.month
 
-    # The publication year begins in August.
     if month >= 8:
         publication_year = year
     else:
         publication_year = year - 1
 
-    # Volume 1 begins in August 2026.
+    # Volume 1 begins August 2026.
     volume = publication_year - 2025
 
-    # August/September = Issue 1
     issue = ((month - 8) % 12) // 2 + 1
 
-    month_names = [
-        "August",
-        "September",
-        "October",
-        "November",
-        "December",
-        "January",
-        "February",
-        "March",
-        "April",
-        "May",
-        "June",
-        "July",
-    ]
-
-    issue_start_index = ((issue - 1) * 2)
-
-    issue_start = month_names[issue_start_index]
-    issue_end = month_names[issue_start_index + 1]
-
-    # December-January crosses a calendar year.
-    if issue == 3:
-        issue_period = f"{issue_start} {year} – {issue_end} {year + 1}"
-    elif issue in (4, 5, 6):
-        issue_period = f"{issue_start} {year} – {issue_end} {year}"
-    else:
-        issue_period = f"{issue_start} {year} – {issue_end} {year}"
+    issue_periods = {
+        1: "August – September",
+        2: "October – November",
+        3: "December – January",
+        4: "February – March",
+        5: "April – May",
+        6: "June – July",
+    }
 
     return {
         "volume": volume,
@@ -95,8 +67,35 @@ def get_publication_info(date):
         "volume_label": f"Volume {volume}",
         "issue_label": f"Issue {issue}",
         "volume_issue": f"Volume {volume}, Issue {issue}",
-        "issue_period": issue_period,
+        "issue_period": issue_periods[issue],
     }
+
+
+# ============================================================
+# DOI GENERATION
+# ============================================================
+
+def generate_doi(title, date):
+    """
+    Generate a stable fictional DOI.
+
+    The DOI is deterministic: the same article title and date
+    will always produce the same DOI.
+
+    These are intentionally fictional and are NOT registered DOIs.
+    """
+
+    source = f"{date.strftime('%Y-%m-%d')}:{title}"
+
+    digest = hashlib.sha1(
+        source.encode("utf-8")
+    ).hexdigest()[:6]
+
+    return (
+        f"10.0000/jua."
+        f"{date.year}."
+        f"{digest}"
+    )
 
 
 # ============================================================
@@ -139,19 +138,6 @@ def load_template(filename):
 def parse_front_matter(text):
     """
     Read metadata from the beginning of a Markdown article.
-
-    Example:
-
-    ---
-    title: "Article Title"
-    author: "Author Name"
-    date: "2026-08-24"
-    type: "Research Article"
-    abstract: "Short description."
-    reviewer: "Prof. Reginald P. Puddifoot, FJUA"
-    ---
-
-    Article content goes here.
     """
 
     if not text.startswith("---"):
@@ -222,23 +208,6 @@ def inline_markdown(text):
 def markdown_to_html(markdown):
     """
     Convert basic Markdown to HTML.
-
-    Supported:
-
-    # Heading
-    ## Heading
-    ### Heading
-
-    Paragraphs
-
-    - Lists
-    * Lists
-
-    > Blockquotes
-
-    **bold**
-    *italic*
-    `code`
     """
 
     lines = markdown.splitlines()
@@ -276,7 +245,6 @@ def markdown_to_html(markdown):
 
         stripped = line.strip()
 
-        # Blank line
         if not stripped:
 
             flush_paragraph()
@@ -284,7 +252,6 @@ def markdown_to_html(markdown):
 
             continue
 
-        # Headings
         heading_match = re.match(
             r"^(#{1,6})\s+(.+)$",
             stripped
@@ -309,7 +276,6 @@ def markdown_to_html(markdown):
 
             continue
 
-        # Bullet lists
         list_match = re.match(
             r"^[-*]\s+(.+)$",
             stripped
@@ -333,7 +299,6 @@ def markdown_to_html(markdown):
 
             continue
 
-        # Blockquotes
         if stripped.startswith(">"):
 
             flush_paragraph()
@@ -349,7 +314,6 @@ def markdown_to_html(markdown):
 
             continue
 
-        # Normal paragraph
         paragraph.append(stripped)
 
     flush_paragraph()
@@ -422,8 +386,6 @@ def read_articles():
             text
         )
 
-        # Validate metadata
-
         required_fields = [
             "title",
             "author",
@@ -447,8 +409,6 @@ def read_articles():
                 f"Missing: {', '.join(missing)}"
             )
 
-        # Validate date
-
         try:
 
             date = datetime.strptime(
@@ -463,8 +423,6 @@ def read_articles():
                 f"Use YYYY-MM-DD."
             )
 
-        # Create slug
-
         slug = slugify(
             metadata["title"]
         )
@@ -475,13 +433,14 @@ def read_articles():
                 f"Could not create URL slug for: {path}"
             )
 
-        # Calculate publication information
-
         publication = get_publication_info(
             date
         )
 
-        # Store article
+        doi = generate_doi(
+            metadata["title"],
+            date
+        )
 
         articles.append(
             {
@@ -500,18 +459,16 @@ def read_articles():
                     markdown
                 ),
 
-                # Publication information
-
                 "volume": publication["volume"],
                 "issue": publication["issue"],
                 "volume_label": publication["volume_label"],
                 "issue_label": publication["issue_label"],
                 "volume_issue": publication["volume_issue"],
                 "issue_period": publication["issue_period"],
+
+                "doi": doi,
             }
         )
-
-    # Newest first
 
     articles.sort(
         key=lambda article: article["date"],
@@ -534,6 +491,7 @@ def site_header(active, prefix=""):
     links = [
         ("Home", "index.html", "home"),
         ("Articles", "articles.html", "articles"),
+        ("Editorial Board", "editorial-board.html", "editorial"),
         ("Submit", "submit.html", "submit"),
         ("About", "about.html", "about"),
     ]
@@ -623,6 +581,10 @@ def site_footer(prefix=""):
 
       <a href="{prefix}articles.html">
         Articles
+      </a>
+
+      <a href="{prefix}editorial-board.html">
+        Editorial Board
       </a>
 
       <a href="{prefix}submit.html">
@@ -768,7 +730,7 @@ def build_homepage(articles):
 """
 
         current_issue = "Volume 1, Issue 1"
-        current_period = "August–September 2026"
+        current_period = "August – September"
 
     body = f"""
 <section class="journal-banner">
@@ -830,6 +792,36 @@ def build_homepage(articles):
   <div class="article-grid">
 
     {cards}
+
+  </div>
+
+</section>
+
+
+<section class="impact-banner">
+
+  <div class="container impact-banner-inner">
+
+    <div>
+
+      <p class="section-label">
+        JOURNAL METRICS
+      </p>
+
+      <h2>
+        Impact Factor
+      </h2>
+
+      <p>
+        Our current impact factor has been calculated
+        using a methodology of considerable confidence.
+      </p>
+
+    </div>
+
+    <div class="impact-number">
+      4.217
+    </div>
 
   </div>
 
@@ -982,6 +974,9 @@ def build_article_pages(articles):
             "{{ISSUE_PERIOD}}": escape(
                 article["issue_period"]
             ),
+            "{{DOI}}": escape(
+                article["doi"]
+            ),
             "{{CONTENT}}": article["content"],
         }
 
@@ -1013,6 +1008,29 @@ def build_article_pages(articles):
         print(
             f"Created: {article_path}"
         )
+
+
+# ============================================================
+# EDITORIAL BOARD
+# ============================================================
+
+def build_editorial_board():
+
+    body = load_template(
+        "editorial-board.html"
+    )
+
+    html = make_page(
+        "Editorial Board",
+        body,
+        "editorial",
+        ""
+    )
+
+    write_file(
+        SITE_DIR / "editorial-board.html",
+        html
+    )
 
 
 # ============================================================
@@ -1056,8 +1074,6 @@ def main():
     print("=" * 60)
     print("")
 
-    # Clean old build
-
     if SITE_DIR.exists():
 
         print("Cleaning old _site directory...")
@@ -1070,11 +1086,7 @@ def main():
         parents=True
     )
 
-    # Read articles
-
     articles = read_articles()
-
-    # Build homepage
 
     print("")
     print("Building homepage...")
@@ -1083,15 +1095,11 @@ def main():
         articles
     )
 
-    # Build archive
-
     print("Building article archive...")
 
     build_article_index(
         articles
     )
-
-    # Build articles
 
     print("Building individual articles...")
 
@@ -1099,7 +1107,9 @@ def main():
         articles
     )
 
-    # Build About
+    print("Building Editorial Board...")
+
+    build_editorial_board()
 
     print("Building About page...")
 
@@ -1110,8 +1120,6 @@ def main():
         "about"
     )
 
-    # Build Submit
-
     print("Building Submit page...")
 
     build_static_page(
@@ -1121,16 +1129,12 @@ def main():
         "submit"
     )
 
-    # Copy CSS
-
     print("Copying stylesheet...")
 
     shutil.copy2(
         ROOT / "style.css",
         SITE_DIR / "style.css"
     )
-
-    # Done
 
     print("")
     print("=" * 60)
