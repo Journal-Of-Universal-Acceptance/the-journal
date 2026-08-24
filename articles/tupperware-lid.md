@@ -4,6 +4,7 @@ author: "The Journal of Universal Acceptance"
 date: "2026-08-24"
 type: "Research Article"
 abstract: "A preliminary investigation into the persistent disappearance of Tupperware lids within domestic and institutional environments."
+reviewer: "Prof. Reginald P. Puddifoot, FJUA"
 ---
 
 
