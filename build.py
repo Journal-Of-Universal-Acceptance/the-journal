@@ -218,11 +218,10 @@ def read_articles():
 
         metadata, markdown = parse_front_matter(text)
 
-        if not metadata.get("title"):
-            print(
-                f"Skipping {path}: no title"
-            )
-            continue
+if not metadata.get("title"):
+    raise ValueError(
+        f"Article is missing a title: {path}"
+    )
 
         date_string = metadata.get(
             "date",
