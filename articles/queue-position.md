@@ -5,6 +5,12 @@ date: "2026-08-09"
 type: "Applied Mathematics"
 abstract: "A mathematical examination of the widely observed phenomenon in which an individual changes queues only to discover that their original queue subsequently moves faster."
 reviewer: "Dr. Beatrice N. Porridge, FJUA"
+keywords:
+  - queues
+  - psychology
+  - waiting
+  - social behaviour
+  - queue positioning
 ---
 
 ## Abstract
