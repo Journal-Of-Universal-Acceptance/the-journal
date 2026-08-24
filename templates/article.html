@@ -5,18 +5,20 @@
     <div class="article-breadcrumb">
 
       <a href="../index.html">
-        The Journal of Universal Acceptance
+        Home
       </a>
 
       <span>›</span>
 
       <a href="../articles.html">
-        Article Archive
+        Articles
       </a>
 
       <span>›</span>
 
-      <span>{{VOLUME_ISSUE}}</span>
+      <span>
+        Article
+      </span>
 
     </div>
 
@@ -25,13 +27,13 @@
 
       <div class="article-header-top">
 
-        <span class="article-type">
+        <div class="article-type">
           {{TYPE}}
-        </span>
+        </div>
 
-        <span class="article-open-access">
+        <div class="article-open-access">
           OPEN ACCESS
-        </span>
+        </div>
 
       </div>
 
@@ -41,16 +43,9 @@
       </h1>
 
 
-      <p class="article-publication">
-        {{VOLUME_ISSUE}}
-        &nbsp; · &nbsp;
-        {{ISSUE_PERIOD}}
-      </p>
-
-
       <div class="article-byline">
 
-        <div class="byline-author">
+        <div>
 
           <span class="meta-label">
             AUTHOR
@@ -63,7 +58,7 @@
         </div>
 
 
-        <div class="byline-date">
+        <div>
 
           <span class="meta-label">
             PUBLISHED
@@ -82,8 +77,9 @@
             PEER REVIEW
           </span>
 
-          <strong>
-            {{REVIEWER}}
+          <strong class="reviewer-name">
+            Peer-reviewed by
+            Prof. Bartholomew Crumpet
           </strong>
 
         </div>
@@ -99,86 +95,29 @@
     <div class="article-layout">
 
 
+      <!-- =================================================
+           SIDEBAR
+      ================================================== -->
+
       <aside class="article-sidebar">
 
 
         <div class="sidebar-block">
 
           <span class="sidebar-label">
-            PUBLICATION
+            ARTICLE INFORMATION
           </span>
-
-          <p>
-            {{VOLUME}}
-          </p>
-
-          <p>
-            {{ISSUE}}
-          </p>
-
-          <p>
-            {{ISSUE_PERIOD}}
-          </p>
-
-        </div>
-
-
-        <div class="sidebar-block">
-
-          <span class="sidebar-label">
-            ARTICLE
-          </span>
-
-          <p>
-            {{TYPE}}
-          </p>
 
           <p>
             Open Access
           </p>
 
-        </div>
-
-
-        <div class="sidebar-block">
-
-          <span class="sidebar-label">
-            IDENTIFIER
-          </span>
-
-          <p class="doi">
-
-            <strong>
-              DOI
-            </strong>
-
-            <br>
-
-            {{DOI}}
-
-          </p>
-
-          <p class="doi-note">
-            
-          </p>
-
-        </div>
-
-
-        <div class="sidebar-block">
-
-          <span class="sidebar-label">
-            PEER REVIEW
-          </span>
-
-          <p class="reviewer-name">
-            {{REVIEWER}}
+          <p>
+            Volume 1, Issue 1
           </p>
 
           <p>
-            Peer review conducted in accordance
-            with the journal's commitment to
-            universal acceptance.
+            Article
           </p>
 
         </div>
@@ -187,21 +126,50 @@
         <div class="sidebar-block">
 
           <span class="sidebar-label">
-            CITATION
+            SUBMISSION HISTORY
+          </span>
+
+          <p>
+            Submitted
+          </p>
+
+          <p>
+            {{SUBMITTED}}
+          </p>
+
+          <p>
+            Accepted
+          </p>
+
+          <p>
+            {{ACCEPTED}}
+          </p>
+
+        </div>
+
+
+        <div class="sidebar-block">
+
+          <span class="sidebar-label">
+            DOI
           </span>
 
           <p class="citation">
-
-            {{AUTHOR}}.
-            "{{TITLE}}."
-            <em>
-              The Journal of Universal Acceptance
-            </em>,
-            {{VOLUME_ISSUE}},
-            {{DATE}}.
-            DOI: {{DOI}}.
-
+            10.0000/jua
           </p>
+
+        </div>
+
+
+        <div class="sidebar-block">
+
+          <span class="sidebar-label">
+            KEYWORDS
+          </span>
+
+          <div class="article-keywords">
+            {{KEYWORDS}}
+          </div>
 
         </div>
 
@@ -209,11 +177,13 @@
         <div class="sidebar-block sidebar-note">
 
           <span class="sidebar-label">
-            EDITORIAL STATUS
+            EDITORIAL NOTE
           </span>
 
           <p>
-            Accepted for publication.
+            This article was accepted for publication
+            following a rigorous process of reading it
+            and deciding that it seemed fine.
           </p>
 
         </div>
@@ -222,20 +192,24 @@
       </aside>
 
 
+      <!-- =================================================
+           ARTICLE
+      ================================================== -->
+
       <article class="article-content">
 
 
-        <section class="article-abstract">
+        <div class="article-abstract">
 
           <div class="abstract-heading">
-            Abstract
+            ABSTRACT
           </div>
 
           <p>
             {{ABSTRACT}}
           </p>
 
-        </section>
+        </div>
 
 
         <div class="article-body">
@@ -245,30 +219,21 @@
         </div>
 
 
-        <footer class="article-end">
+        <div class="article-end">
 
           <div class="article-end-mark">
             ◆
           </div>
 
           <p>
-            End of article
-          </p>
-
-          <p class="peer-review-footer">
-            Peer review conducted in accordance with
-            the journal's commitment to universal acceptance.
-          </p>
-
-          <p class="doi-footer">
-            DOI: {{DOI}}
+            End of Article
           </p>
 
           <a href="../articles.html">
-            ← Back to article archive
+            Return to article archive →
           </a>
 
-        </footer>
+        </div>
 
 
       </article>
