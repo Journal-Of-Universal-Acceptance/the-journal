@@ -1,16 +1,10 @@
-\---
-
+---
 title: "Toward a Unified Theory of the Missing Tupperware Lid"
-
 author: "The Journal of Universal Acceptance"
-
 date: "2026-08-24"
-
 type: "Research Article"
-
 abstract: "A preliminary investigation into the persistent disappearance of Tupperware lids within domestic and institutional environments."
-
-\---
+---
 
 
 
