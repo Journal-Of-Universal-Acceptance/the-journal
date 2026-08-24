@@ -5,6 +5,12 @@ date: "2026-08-23"
 type: "Theoretical Article"
 abstract: "An inquiry into the philosophical and practical status of tea that has been prepared, partially consumed, and subsequently forgotten."
 reviewer: "Dr. Mildred Biscuit, FJUA"
+keywords:
+  - tea
+  - ontology
+  - unfinished beverages
+  - domestic philosophy
+  - existential uncertainty
 ---
 
 ## Abstract
