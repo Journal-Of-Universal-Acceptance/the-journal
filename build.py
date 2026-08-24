@@ -1,6 +1,7 @@
 from pathlib import Path
 from html import escape
 from datetime import datetime
+import hashlib
 import re
 import shutil
 
@@ -16,13 +17,6 @@ TEMPLATES_DIR = ROOT / "templates"
 SITE_DIR = ROOT / "_site"
 
 SITE_TITLE = "The Journal of Universal Acceptance"
-
-# Current journal volume and issue
-CURRENT_VOLUME = 1
-CURRENT_ISSUE = 1
-
-# Fake DOI prefix for the journal
-DOI_PREFIX = "10.0000/jua"
 
 
 # ============================================================
@@ -74,7 +68,6 @@ def parse_front_matter(text):
     date: "2026-08-24"
     type: "Research Article"
     abstract: "Short description."
-    article_number: "001"
     submitted: "2026-08-20"
     accepted: "2026-08-24"
     keywords:
@@ -386,23 +379,84 @@ def format_date(date):
 
 
 # ============================================================
+# PUBLICATION SYSTEM
+# ============================================================
+
+def get_publication_info(date):
+    """
+    Calculate the journal volume and issue from an article date.
+
+    Each volume runs from August through July.
+
+    Each volume contains six bimonthly issues:
+
+        Issue 1: August – September
+        Issue 2: October – November
+        Issue 3: December – January
+        Issue 4: February – March
+        Issue 5: April – May
+        Issue 6: June – July
+
+    Volume 1 begins in August 2026.
+    """
+
+    year = date.year
+    month = date.month
+
+    if month >= 8:
+        publication_year = year
+    else:
+        publication_year = year - 1
+
+    volume = publication_year - 2025
+
+    issue = ((month - 8) % 12) // 2 + 1
+
+    issue_periods = {
+        1: "August – September",
+        2: "October – November",
+        3: "December – January",
+        4: "February – March",
+        5: "April – May",
+        6: "June – July",
+    }
+
+    return {
+        "volume": volume,
+        "issue": issue,
+        "volume_label": f"Volume {volume}",
+        "issue_label": f"Issue {issue}",
+        "volume_issue": f"Volume {volume}, Issue {issue}",
+        "issue_period": issue_periods[issue],
+    }
+
+
+# ============================================================
 # DOI
 # ============================================================
 
-def generate_doi(article_number):
+def generate_doi(title, date):
     """
-    Generate the journal DOI.
+    Generate a stable fictional DOI.
 
-    Example:
+    The DOI is deterministic: the same article title and date
+    will always produce the same DOI.
 
-    10.0000/jua.v1i1.001
+    These are intentionally fictional and are NOT registered DOIs.
     """
+
+    source = (
+        f"{date.strftime('%Y-%m-%d')}:{title}"
+    )
+
+    digest = hashlib.sha1(
+        source.encode("utf-8")
+    ).hexdigest()[:6]
 
     return (
-        f"{DOI_PREFIX}."
-        f"v{CURRENT_VOLUME}"
-        f"i{CURRENT_ISSUE}"
-        f".{article_number}"
+        f"10.0000/jua."
+        f"{date.year}."
+        f"{digest}"
     )
 
 
@@ -450,7 +504,6 @@ def read_articles():
             "date",
             "type",
             "abstract",
-            "article_number",
         ]
 
         missing = [
@@ -518,32 +571,6 @@ def read_articles():
             accepted_date = date
 
         # ----------------------------------------------------
-        # Article number
-        # ----------------------------------------------------
-
-        article_number = str(
-            metadata["article_number"]
-        ).strip()
-
-        # Remove leading zeros temporarily
-        # so we can safely reformat the number.
-
-        try:
-
-            article_number = int(
-                article_number
-            )
-
-        except ValueError:
-
-            raise ValueError(
-                f"Invalid article_number in {path}. "
-                f"Use a number such as 001."
-            )
-
-        article_number = f"{article_number:03d}"
-
-        # ----------------------------------------------------
         # Keywords
         # ----------------------------------------------------
 
@@ -581,11 +608,20 @@ def read_articles():
             )
 
         # ----------------------------------------------------
+        # Publication information
+        # ----------------------------------------------------
+
+        publication = get_publication_info(
+            date
+        )
+
+        # ----------------------------------------------------
         # DOI
         # ----------------------------------------------------
 
         doi = generate_doi(
-            article_number
+            metadata["title"],
+            date
         )
 
         # ----------------------------------------------------
@@ -600,19 +636,30 @@ def read_articles():
                 "author": metadata["author"],
                 "date": date,
                 "date_display": format_date(date),
+
                 "submitted_date": submitted_date,
                 "submitted_display": format_date(
                     submitted_date
                 ),
+
                 "accepted_date": accepted_date,
                 "accepted_display": format_date(
                     accepted_date
                 ),
+
                 "type": metadata["type"],
                 "abstract": metadata["abstract"],
                 "keywords": keywords,
-                "article_number": article_number,
+
+                "volume": publication["volume"],
+                "issue": publication["issue"],
+                "volume_label": publication["volume_label"],
+                "issue_label": publication["issue_label"],
+                "volume_issue": publication["volume_issue"],
+                "issue_period": publication["issue_period"],
+
                 "doi": doi,
+
                 "content": markdown_to_html(
                     markdown
                 ),
@@ -868,6 +915,18 @@ def build_homepage(articles):
 </p>
 """
 
+    if articles:
+
+        latest_publication = articles[0]
+
+        volume_label = latest_publication["volume_label"]
+        issue_label = latest_publication["issue_label"]
+
+    else:
+
+        volume_label = "Volume 1"
+        issue_label = "Issue 1"
+
     body = f"""
 <section class="journal-banner">
 
@@ -906,7 +965,7 @@ def build_homepage(articles):
       </p>
 
       <h2>
-        Volume {CURRENT_VOLUME}, Issue {CURRENT_ISSUE}
+        {volume_label}, {issue_label}
       </h2>
 
     </div>
