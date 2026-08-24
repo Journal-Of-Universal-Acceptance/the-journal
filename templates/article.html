@@ -3,6 +3,7 @@
   <div class="container">
 
     <div class="article-breadcrumb">
+
       <a href="../index.html">
         The Journal of Universal Acceptance
       </a>
@@ -15,7 +16,8 @@
 
       <span>›</span>
 
-      <span>Volume 1, Issue 1</span>
+      <span>{{VOLUME_ISSUE}}</span>
+
     </div>
 
 
@@ -37,6 +39,11 @@
       <h1 class="article-title">
         {{TITLE}}
       </h1>
+
+
+      <p class="article-publication">
+        {{VOLUME_ISSUE}} &nbsp; · &nbsp; {{ISSUE_PERIOD}}
+      </p>
 
 
       <div class="article-byline">
@@ -95,11 +102,32 @@
         <div class="sidebar-block">
 
           <span class="sidebar-label">
+            PUBLICATION
+          </span>
+
+          <p>
+            {{VOLUME}}
+          </p>
+
+          <p>
+            {{ISSUE}}
+          </p>
+
+          <p>
+            {{ISSUE_PERIOD}}
+          </p>
+
+        </div>
+
+
+        <div class="sidebar-block">
+
+          <span class="sidebar-label">
             ARTICLE
           </span>
 
           <p>
-            Research Publication
+            {{TYPE}}
           </p>
 
           <p>
@@ -141,7 +169,8 @@
             <em>
               The Journal of Universal Acceptance
             </em>,
-            vol. 1, no. 1, {{DATE}}.
+            {{VOLUME_ISSUE}},
+            {{DATE}}.
 
           </p>
 
