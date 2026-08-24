@@ -67,6 +67,7 @@ def parse_front_matter(text):
     date: "2026-08-24"
     type: "Research Article"
     abstract: "Short description."
+    reviewer: "Prof. Reginald P. Puddifoot, FJUA"
     ---
 
     Article content goes here.
@@ -348,6 +349,7 @@ def read_articles():
             "date",
             "type",
             "abstract",
+            "reviewer",
         ]
 
         missing = [
@@ -406,6 +408,7 @@ def read_articles():
                 ),
                 "type": metadata["type"],
                 "abstract": metadata["abstract"],
+                "reviewer": metadata["reviewer"],
                 "content": markdown_to_html(
                     markdown
                 ),
@@ -851,6 +854,9 @@ def build_article_pages(articles):
             ),
             "{{ABSTRACT}}": escape(
                 article["abstract"]
+            ),
+            "{{REVIEWER}}": escape(
+                article["reviewer"]
             ),
             "{{CONTENT}}": article["content"],
         }
