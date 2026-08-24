@@ -4,6 +4,7 @@ author: "D. Mallard"
 date: "2026-08-22"
 type: "Interdisciplinary Study"
 abstract: "An interdisciplinary examination of the apparent discrepancy between the cultural significance of ducks and their representation in contemporary academic discourse."
+reviewer: "The Hon. Dr. Crispin Featherstone, FJUA"
 ---
 
 ## Abstract
