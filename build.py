@@ -642,8 +642,11 @@ def build_homepage(articles):
     </p>
 
     <h1>
-      The Journal of Universal Acceptance
-    </h1>
+  The Journal of Universal Acceptance
+  <small style="font-size: 14px;">
+    BUILD TEST 2026-08-24
+  </small>
+</h1>
 
     <p class="journal-subtitle">
       A multidisciplinary journal dedicated to the
