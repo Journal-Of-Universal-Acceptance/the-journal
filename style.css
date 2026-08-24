@@ -554,13 +554,17 @@ a {
 
 .article-byline .byline-reviewer strong {
   font-size: 13px;
+
   line-height: 1.4;
 }
 
 .reviewer-name {
   color: var(--text) !important;
+
   font-family: Georgia, "Times New Roman", serif !important;
+
   font-size: 13px !important;
+
   font-weight: normal;
 }
 
@@ -592,19 +596,22 @@ a {
 }
 
 
-/* Main Layout */
+/* =========================================================
+   ARTICLE MAIN LAYOUT
+========================================================= */
 
 .article-layout {
   display: grid;
 
-  grid-template-columns:
-    220px minmax(0, 760px);
+  grid-template-columns: 210px minmax(0, 760px);
 
-  gap: 80px;
+  gap: 55px;
 
   align-items: start;
 
-  padding-top: 60px;
+  padding-top: 50px;
+
+  max-width: 1025px;
 }
 
 
@@ -643,22 +650,33 @@ a {
 }
 
 
-/* Sidebar */
+/* =========================================================
+   ARTICLE SIDEBAR
+   IMPORTANT: STATIC — NO STICKY / NO INTERNAL SCROLL
+========================================================= */
 
 .article-sidebar {
-  position: sticky;
+  position: static;
 
-  top: 30px;
+  top: auto;
+
+  min-width: 0;
+
+  height: auto;
+
+  max-height: none;
+
+  overflow: visible;
 }
 
 .sidebar-block {
-  margin-bottom: 38px;
+  margin-bottom: 30px;
 }
 
 .sidebar-label {
   display: block;
 
-  margin-bottom: 9px;
+  margin-bottom: 8px;
 
   color: var(--accent);
 
@@ -680,7 +698,7 @@ a {
 
   font-size: 11px;
 
-  line-height: 1.6;
+  line-height: 1.5;
 }
 
 .sidebar-block .citation {
@@ -688,43 +706,63 @@ a {
 
   font-size: 12px;
 
-  line-height: 1.65;
+  line-height: 1.6;
 
   overflow-wrap: anywhere;
 }
 
-/*
-   DOI
 
-   Keeps the generated DOI visually compact while allowing
-   long identifiers to wrap safely on narrow screens.
-*/
+/* DOI */
 
 .sidebar-block .doi {
+  display: block;
+
+  margin: 0;
+
   color: var(--text);
 
   font-family: Arial, sans-serif;
 
   font-size: 11px;
 
-  line-height: 1.55;
+  line-height: 1.45;
+
+  overflow-wrap: anywhere;
+
+  word-break: break-word;
+
+  max-width: 100%;
+}
+
+.sidebar-block .doi a {
+  color: var(--accent);
 
   overflow-wrap: anywhere;
 
   word-break: break-word;
 }
 
+.sidebar-block .doi a:hover {
+  text-decoration: underline;
+}
+
 .sidebar-note {
-  padding-top: 20px;
+  padding-top: 16px;
 
   border-top: 1px solid var(--border);
 }
 
 
-/* Article Content */
+/* =========================================================
+   ARTICLE CONTENT
+========================================================= */
 
 .article-content {
   min-width: 0;
+
+  width: 100%;
+
+  max-width: 760px;
 }
 
 
@@ -908,6 +946,7 @@ a {
 
 .editorial-chief {
   margin-top: 60px;
+
   padding: 40px;
 
   background: var(--paper);
@@ -925,6 +964,7 @@ a {
   font-family: Arial, sans-serif;
 
   font-size: 9px;
+
   font-weight: bold;
 
   letter-spacing: 0.15em;
@@ -954,6 +994,7 @@ a {
   font-family: Arial, sans-serif;
 
   font-size: 22px;
+
   font-weight: bold;
 
   letter-spacing: 0.08em;
@@ -1005,6 +1046,7 @@ a {
   font-family: Arial, sans-serif;
 
   font-size: 8px;
+
   font-weight: bold;
 
   letter-spacing: 0.08em;
@@ -1298,6 +1340,7 @@ a {
 
 .impact-banner {
   margin-top: 4rem;
+
   margin-bottom: 4rem;
 }
 
@@ -1446,21 +1489,31 @@ a {
   .article-layout {
     grid-template-columns: 1fr;
 
-    gap: 40px;
+    gap: 35px;
+
+    padding-top: 40px;
+
+    max-width: none;
+  }
+
+  .article-content {
+    max-width: none;
   }
 
   .article-sidebar {
-    position: static;
-
     display: grid;
 
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
 
-    gap: 30px;
+    gap: 25px;
 
-    padding-bottom: 30px;
+    padding-bottom: 25px;
 
     border-bottom: 1px solid var(--border);
+  }
+
+  .sidebar-block {
+    margin-bottom: 5px;
   }
 
 }
@@ -1526,6 +1579,8 @@ a {
 
   .article-sidebar {
     grid-template-columns: 1fr;
+
+    gap: 20px;
   }
 
   .article-abstract {
