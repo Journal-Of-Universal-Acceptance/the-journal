@@ -5,6 +5,12 @@ date: "2026-08-15"
 type: "Investigative Review"
 abstract: "Despite decades of anecdotal evidence, the mechanisms responsible for single-sock disappearance remain poorly understood. This review examines the principal hypotheses."
 reviewer: "Prof. Reginald P. Puddifoot, FJUA"
+keywords:
+  - socks
+  - laundry
+  - domestic disappearance
+  - washing machines
+  - material culture
 ---
 
 ## Abstract
