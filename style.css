@@ -548,6 +548,37 @@ a {
   font-weight: normal;
 }
 
+.byline-reviewer {
+  max-width: 280px;
+}
+
+.article-byline .byline-reviewer strong {
+  font-size: 13px;
+  line-height: 1.4;
+}
+
+.reviewer-name {
+  color: var(--text) !important;
+  font-family: Georgia, "Times New Roman", serif !important;
+  font-size: 13px !important;
+  font-weight: normal;
+}
+
+.peer-review-footer {
+  max-width: 520px;
+
+  margin: 0 auto 18px !important;
+
+  color: var(--muted);
+
+  font-family: Georgia, "Times New Roman", serif;
+
+  font-size: 12px !important;
+
+  font-style: italic;
+
+  line-height: 1.5;
+}
 
 /* Rule */
 
