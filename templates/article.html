@@ -1,55 +1,126 @@
-<section class="container article-page">
+<section class="article-shell">
 
-  <p class="section-label">
-    {{TYPE}}
-  </p>
+  <div class="container">
 
-  <h1 class="article-title">
-    {{TITLE}}
-  </h1>
-
-  <div class="article-byline">
-
-    <span>
-      {{AUTHOR}}
-    </span>
-
-    <span>
-      Published {{DATE}}
-    </span>
-
-  </div>
+    <div class="article-breadcrumb">
+      <a href="../index.html">The Journal of Universal Acceptance</a>
+      <span>/</span>
+      <a href="../articles.html">Volume 1, Issue 1</a>
+      <span>/</span>
+      <span>Article</span>
+    </div>
 
 
-  <div class="article-abstract">
+    <header class="article-header">
 
-    <strong>
-      Abstract
-    </strong>
+      <p class="article-type">
+        {{TYPE}}
+      </p>
 
-    <p>
-      {{ABSTRACT}}
-    </p>
+      <h1 class="article-title">
+        {{TITLE}}
+      </h1>
 
-  </div>
+      <div class="article-meta">
+
+        <div>
+          <span class="meta-label">AUTHOR</span>
+          <strong>{{AUTHOR}}</strong>
+        </div>
+
+        <div>
+          <span class="meta-label">PUBLISHED</span>
+          <strong>{{DATE}}</strong>
+        </div>
+
+        <div>
+          <span class="meta-label">ISSUE</span>
+          <strong>Volume 1, Issue 1</strong>
+        </div>
+
+      </div>
+
+    </header>
 
 
-  <article class="article-body">
+    <div class="article-layout">
 
-    {{CONTENT}}
+      <aside class="article-sidebar">
 
-  </article>
+        <div class="sidebar-block">
+
+          <span class="sidebar-label">
+            ARTICLE INFORMATION
+          </span>
+
+          <p>
+            Open Access
+          </p>
+
+          <p>
+            Published by JUA
+          </p>
+
+        </div>
 
 
-  <div class="article-footer-note">
+        <div class="sidebar-block">
 
-    <p>
-      Published by The Journal of Universal Acceptance.
-    </p>
+          <span class="sidebar-label">
+            CITATION
+          </span>
 
-    <a href="../articles.html">
-      ← Back to article archive
-    </a>
+          <p class="citation">
+            {{AUTHOR}}.
+            "{{TITLE}}."
+            <em>The Journal of Universal Acceptance</em>,
+            vol. 1, no. 1, {{DATE}}.
+          </p>
+
+        </div>
+
+      </aside>
+
+
+      <article class="article-content">
+
+        <section class="article-abstract">
+
+          <p class="abstract-label">
+            ABSTRACT
+          </p>
+
+          <p>
+            {{ABSTRACT}}
+          </p>
+
+        </section>
+
+
+        <div class="article-body">
+
+          {{CONTENT}}
+
+        </div>
+
+
+        <footer class="article-end">
+
+          <div class="article-end-rule"></div>
+
+          <p>
+            End of article.
+          </p>
+
+          <a href="../articles.html">
+            ← Return to article archive
+          </a>
+
+        </footer>
+
+      </article>
+
+    </div>
 
   </div>
 
