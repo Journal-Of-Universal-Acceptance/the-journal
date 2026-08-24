@@ -607,6 +607,7 @@ a {
   padding-top: 60px;
 }
 
+
 /* =========================================================
    ARTICLE METADATA
 ========================================================= */
@@ -640,6 +641,7 @@ a {
 
   line-height: 1.3;
 }
+
 
 /* Sidebar */
 
@@ -687,6 +689,29 @@ a {
   font-size: 12px;
 
   line-height: 1.65;
+
+  overflow-wrap: anywhere;
+}
+
+/*
+   DOI
+
+   Keeps the generated DOI visually compact while allowing
+   long identifiers to wrap safely on narrow screens.
+*/
+
+.sidebar-block .doi {
+  color: var(--text);
+
+  font-family: Arial, sans-serif;
+
+  font-size: 11px;
+
+  line-height: 1.55;
+
+  overflow-wrap: anywhere;
+
+  word-break: break-word;
 }
 
 .sidebar-note {
@@ -871,6 +896,7 @@ a {
 .disclosure p:not(.section-label) {
   color: var(--muted);
 }
+
 
 /* =========================================================
    EDITORIAL BOARD
@@ -1264,6 +1290,7 @@ a {
 .editorial-note p {
   margin: 0;
 }
+
 
 /* =========================================================
    IMPACT FACTOR
