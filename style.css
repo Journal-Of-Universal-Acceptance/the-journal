@@ -559,4 +559,172 @@ a {
     padding: 30px;
   }
 
+/* =========================================
+   GENERATED ARTICLE SYSTEM
+========================================= */
+
+.article-date {
+  margin: -14px 0 20px;
+
+  color: var(--muted);
+
+  font-family: Arial, sans-serif;
+  font-size: 11px;
+}
+
+
+/* INDIVIDUAL ARTICLE */
+
+.article-page {
+  padding-top: 90px;
+  padding-bottom: 110px;
+}
+
+.article-title {
+  max-width: 900px;
+
+  margin: 0 0 30px;
+
+  font-size: clamp(46px, 7vw, 76px);
+
+  line-height: 1.08;
+
+  letter-spacing: -0.04em;
+}
+
+.article-byline {
+  display: flex;
+
+  gap: 30px;
+
+  padding: 18px 0;
+
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+
+  color: var(--muted);
+
+  font-family: Arial, sans-serif;
+  font-size: 12px;
+}
+
+.article-abstract {
+  max-width: 800px;
+
+  margin: 55px 0;
+
+  padding: 30px;
+
+  background: var(--accent-light);
+
+  border-left: 4px solid var(--accent);
+}
+
+.article-abstract strong {
+  display: block;
+
+  margin-bottom: 12px;
+
+  color: var(--accent);
+
+  font-family: Arial, sans-serif;
+
+  font-size: 11px;
+
+  letter-spacing: 0.1em;
+
+  text-transform: uppercase;
+}
+
+.article-abstract p {
+  margin: 0;
+
+  color: var(--muted);
+
+  font-size: 18px;
+}
+
+.article-body {
+  max-width: 800px;
+
+  font-size: 18px;
+}
+
+.article-body h2 {
+  margin-top: 55px;
+
+  font-size: 34px;
+}
+
+.article-body h3 {
+  margin-top: 40px;
+
+  font-size: 26px;
+}
+
+.article-body p {
+  margin: 0 0 24px;
+}
+
+.article-body ul {
+  margin: 25px 0;
+  padding-left: 30px;
+}
+
+.article-body li {
+  margin-bottom: 8px;
+}
+
+.article-body blockquote {
+  margin: 30px 0;
+
+  padding-left: 25px;
+
+  border-left: 3px solid var(--accent);
+
+  color: var(--muted);
+
+  font-style: italic;
+}
+
+.article-footer-note {
+  max-width: 800px;
+
+  margin-top: 70px;
+
+  padding-top: 25px;
+
+  border-top: 1px solid var(--border);
+
+  color: var(--muted);
+
+  font-family: Arial, sans-serif;
+
+  font-size: 12px;
+}
+
+.article-footer-note a {
+  color: var(--accent);
+}
+
+
+/* MOBILE ARTICLE */
+
+@media (max-width: 600px) {
+
+  .article-byline {
+    flex-direction: column;
+    gap: 5px;
+  }
+
+  .article-abstract {
+    padding: 24px;
+  }
+
+  .article-body {
+    font-size: 17px;
+  }
+
+}
+
 }
