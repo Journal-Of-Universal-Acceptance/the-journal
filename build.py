@@ -1,7 +1,6 @@
 from pathlib import Path
 from html import escape
 from datetime import datetime
-import hashlib
 import re
 import shutil
 
@@ -17,85 +16,6 @@ TEMPLATES_DIR = ROOT / "templates"
 SITE_DIR = ROOT / "_site"
 
 SITE_TITLE = "The Journal of Universal Acceptance"
-
-
-# ============================================================
-# PUBLICATION SYSTEM
-# ============================================================
-
-def get_publication_info(date):
-    """
-    Calculate the journal volume and issue from an article date.
-
-    Each volume runs from August through July.
-
-    Each volume contains six bimonthly issues:
-
-        Issue 1: August - September
-        Issue 2: October - November
-        Issue 3: December - January
-        Issue 4: February - March
-        Issue 5: April - May
-        Issue 6: June - July
-    """
-
-    year = date.year
-    month = date.month
-
-    if month >= 8:
-        publication_year = year
-    else:
-        publication_year = year - 1
-
-    # Volume 1 begins August 2026.
-    volume = publication_year - 2025
-
-    issue = ((month - 8) % 12) // 2 + 1
-
-    issue_periods = {
-        1: "August – September",
-        2: "October – November",
-        3: "December – January",
-        4: "February – March",
-        5: "April – May",
-        6: "June – July",
-    }
-
-    return {
-        "volume": volume,
-        "issue": issue,
-        "volume_label": f"Volume {volume}",
-        "issue_label": f"Issue {issue}",
-        "volume_issue": f"Volume {volume}, Issue {issue}",
-        "issue_period": issue_periods[issue],
-    }
-
-
-# ============================================================
-# DOI GENERATION
-# ============================================================
-
-def generate_doi(title, date):
-    """
-    Generate a stable fictional DOI.
-
-    The DOI is deterministic: the same article title and date
-    will always produce the same DOI.
-
-    These are intentionally fictional and are NOT registered DOIs.
-    """
-
-    source = f"{date.strftime('%Y-%m-%d')}:{title}"
-
-    digest = hashlib.sha1(
-        source.encode("utf-8")
-    ).hexdigest()[:6]
-
-    return (
-        f"10.0000/jua."
-        f"{date.year}."
-        f"{digest}"
-    )
 
 
 # ============================================================
@@ -138,6 +58,23 @@ def load_template(filename):
 def parse_front_matter(text):
     """
     Read metadata from the beginning of a Markdown article.
+
+    Example:
+
+    ---
+    title: "Article Title"
+    author: "Author Name"
+    date: "2026-08-24"
+    type: "Research Article"
+    abstract: "Short description."
+    submitted: "2026-08-20"
+    accepted: "2026-08-24"
+    keywords:
+      - First Keyword
+      - Second Keyword
+    ---
+
+    Article content goes here.
     """
 
     if not text.startswith("---"):
@@ -153,7 +90,31 @@ def parse_front_matter(text):
 
     metadata = {}
 
-    for line in metadata_text.splitlines():
+    lines = metadata_text.splitlines()
+
+    current_key = None
+
+    for line in lines:
+
+        stripped = line.strip()
+
+        if not stripped:
+            continue
+
+        # YAML-style list item
+        if stripped.startswith("- ") and current_key == "keywords":
+
+            keyword = stripped[2:].strip()
+
+            if keyword.startswith('"') and keyword.endswith('"'):
+                keyword = keyword[1:-1]
+
+            if "keywords" not in metadata:
+                metadata["keywords"] = []
+
+            metadata["keywords"].append(keyword)
+
+            continue
 
         if ":" not in line:
             continue
@@ -163,6 +124,8 @@ def parse_front_matter(text):
         key = key.strip()
         value = value.strip()
 
+        current_key = key
+
         if (
             len(value) >= 2
             and value.startswith('"')
@@ -170,7 +133,10 @@ def parse_front_matter(text):
         ):
             value = value[1:-1]
 
-        metadata[key] = value
+        if key == "keywords" and not value:
+            metadata[key] = []
+        else:
+            metadata[key] = value
 
     return metadata, content
 
@@ -208,6 +174,23 @@ def inline_markdown(text):
 def markdown_to_html(markdown):
     """
     Convert basic Markdown to HTML.
+
+    Supported:
+
+    # Heading
+    ## Heading
+    ### Heading
+
+    Paragraphs
+
+    - Lists
+    * Lists
+
+    > Blockquotes
+
+    **bold**
+    *italic*
+    `code`
     """
 
     lines = markdown.splitlines()
@@ -245,6 +228,7 @@ def markdown_to_html(markdown):
 
         stripped = line.strip()
 
+        # Blank line
         if not stripped:
 
             flush_paragraph()
@@ -252,6 +236,7 @@ def markdown_to_html(markdown):
 
             continue
 
+        # Headings
         heading_match = re.match(
             r"^(#{1,6})\s+(.+)$",
             stripped
@@ -276,6 +261,7 @@ def markdown_to_html(markdown):
 
             continue
 
+        # Bullet lists
         list_match = re.match(
             r"^[-*]\s+(.+)$",
             stripped
@@ -299,6 +285,7 @@ def markdown_to_html(markdown):
 
             continue
 
+        # Blockquotes
         if stripped.startswith(">"):
 
             flush_paragraph()
@@ -314,6 +301,7 @@ def markdown_to_html(markdown):
 
             continue
 
+        # Normal paragraph
         paragraph.append(stripped)
 
     flush_paragraph()
@@ -353,6 +341,36 @@ def slugify(text):
 
 
 # ============================================================
+# DATE HELPERS
+# ============================================================
+
+def parse_date(value, path, field_name):
+    """Parse a YYYY-MM-DD date."""
+
+    try:
+
+        return datetime.strptime(
+            value,
+            "%Y-%m-%d"
+        )
+
+    except ValueError:
+
+        raise ValueError(
+            f"Invalid {field_name} date in {path}. "
+            f"Use YYYY-MM-DD."
+        )
+
+
+def format_date(date):
+    """Format a date for display."""
+
+    return date.strftime(
+        "%d %B %Y"
+    )
+
+
+# ============================================================
 # READ ARTICLES
 # ============================================================
 
@@ -386,13 +404,14 @@ def read_articles():
             text
         )
 
+        # Validate metadata
+
         required_fields = [
             "title",
             "author",
             "date",
             "type",
             "abstract",
-            "reviewer",
         ]
 
         missing = [
@@ -409,19 +428,72 @@ def read_articles():
                 f"Missing: {', '.join(missing)}"
             )
 
-        try:
+        # Validate publication date
 
-            date = datetime.strptime(
-                metadata["date"],
-                "%Y-%m-%d"
+        date = parse_date(
+            metadata["date"],
+            path,
+            "publication"
+        )
+
+        # Submission date
+
+        submitted_value = metadata.get(
+            "submitted"
+        )
+
+        if submitted_value:
+
+            submitted_date = parse_date(
+                submitted_value,
+                path,
+                "submitted"
             )
 
-        except ValueError:
+        else:
 
-            raise ValueError(
-                f"Invalid date in {path}. "
-                f"Use YYYY-MM-DD."
+            submitted_date = date
+
+        # Acceptance date
+
+        accepted_value = metadata.get(
+            "accepted"
+        )
+
+        if accepted_value:
+
+            accepted_date = parse_date(
+                accepted_value,
+                path,
+                "accepted"
             )
+
+        else:
+
+            accepted_date = date
+
+        # Keywords
+
+        keywords = metadata.get(
+            "keywords",
+            []
+        )
+
+        if isinstance(keywords, str):
+
+            keywords = [
+                keyword.strip()
+                for keyword in keywords.split(",")
+                if keyword.strip()
+            ]
+
+        if not keywords:
+
+            keywords = [
+                "Universal Acceptance"
+            ]
+
+        # Create slug
 
         slug = slugify(
             metadata["title"]
@@ -433,14 +505,7 @@ def read_articles():
                 f"Could not create URL slug for: {path}"
             )
 
-        publication = get_publication_info(
-            date
-        )
-
-        doi = generate_doi(
-            metadata["title"],
-            date
-        )
+        # Store article
 
         articles.append(
             {
@@ -449,26 +514,25 @@ def read_articles():
                 "title": metadata["title"],
                 "author": metadata["author"],
                 "date": date,
-                "date_display": date.strftime(
-                    "%d %B %Y"
+                "date_display": format_date(date),
+                "submitted_date": submitted_date,
+                "submitted_display": format_date(
+                    submitted_date
+                ),
+                "accepted_date": accepted_date,
+                "accepted_display": format_date(
+                    accepted_date
                 ),
                 "type": metadata["type"],
                 "abstract": metadata["abstract"],
-                "reviewer": metadata["reviewer"],
+                "keywords": keywords,
                 "content": markdown_to_html(
                     markdown
                 ),
-
-                "volume": publication["volume"],
-                "issue": publication["issue"],
-                "volume_label": publication["volume_label"],
-                "issue_label": publication["issue_label"],
-                "volume_issue": publication["volume_issue"],
-                "issue_period": publication["issue_period"],
-
-                "doi": doi,
             }
         )
+
+    # Newest first
 
     articles.sort(
         key=lambda article: article["date"],
@@ -491,7 +555,6 @@ def site_header(active, prefix=""):
     links = [
         ("Home", "index.html", "home"),
         ("Articles", "articles.html", "articles"),
-        ("Editorial Board", "editorial-board.html", "editorial"),
         ("Submit", "submit.html", "submit"),
         ("About", "about.html", "about"),
     ]
@@ -583,10 +646,6 @@ def site_footer(prefix=""):
         Articles
       </a>
 
-      <a href="{prefix}editorial-board.html">
-        Editorial Board
-      </a>
-
       <a href="{prefix}submit.html">
         Submit
       </a>
@@ -670,10 +729,6 @@ def article_card(article):
     {escape(article["type"])}
   </div>
 
-  <div class="article-card-issue">
-    {escape(article["volume_issue"])}
-  </div>
-
   <h3>
     {escape(article["title"])}
   </h3>
@@ -716,11 +771,6 @@ def build_homepage(articles):
             for article in latest
         )
 
-        current = latest[0]
-
-        current_issue = current["volume_issue"]
-        current_period = current["issue_period"]
-
     else:
 
         cards = """
@@ -728,9 +778,6 @@ def build_homepage(articles):
   No articles have been published yet.
 </p>
 """
-
-        current_issue = "Volume 1, Issue 1"
-        current_period = "August – September"
 
     body = f"""
 <section class="journal-banner">
@@ -766,16 +813,12 @@ def build_homepage(articles):
     <div>
 
       <p class="section-label">
-        CURRENT ISSUE
+        LATEST ARTICLES
       </p>
 
       <h2>
-        {escape(current_issue)}
+        Volume 1, Issue 1
       </h2>
-
-      <p class="issue-period">
-        {escape(current_period)}
-      </p>
 
     </div>
 
@@ -792,36 +835,6 @@ def build_homepage(articles):
   <div class="article-grid">
 
     {cards}
-
-  </div>
-
-</section>
-
-
-<section class="impact-banner">
-
-  <div class="container impact-banner-inner">
-
-    <div>
-
-      <p class="section-label">
-        JOURNAL METRICS
-      </p>
-
-      <h2>
-        Impact Factor
-      </h2>
-
-      <p>
-        Our current impact factor has been calculated
-        using a methodology of considerable confidence.
-      </p>
-
-    </div>
-
-    <div class="impact-number">
-      4.217
-    </div>
 
   </div>
 
@@ -941,6 +954,11 @@ def build_article_pages(articles):
 
     for article in articles:
 
+        keyword_html = "\n".join(
+            f'<span>{escape(keyword)}</span>'
+            for keyword in article["keywords"]
+        )
+
         html = template
 
         replacements = {
@@ -959,24 +977,13 @@ def build_article_pages(articles):
             "{{ABSTRACT}}": escape(
                 article["abstract"]
             ),
-            "{{REVIEWER}}": escape(
-                article["reviewer"]
+            "{{SUBMITTED}}": escape(
+                article["submitted_display"]
             ),
-            "{{VOLUME}}": escape(
-                article["volume_label"]
+            "{{ACCEPTED}}": escape(
+                article["accepted_display"]
             ),
-            "{{ISSUE}}": escape(
-                article["issue_label"]
-            ),
-            "{{VOLUME_ISSUE}}": escape(
-                article["volume_issue"]
-            ),
-            "{{ISSUE_PERIOD}}": escape(
-                article["issue_period"]
-            ),
-            "{{DOI}}": escape(
-                article["doi"]
-            ),
+            "{{KEYWORDS}}": keyword_html,
             "{{CONTENT}}": article["content"],
         }
 
@@ -1008,29 +1015,6 @@ def build_article_pages(articles):
         print(
             f"Created: {article_path}"
         )
-
-
-# ============================================================
-# EDITORIAL BOARD
-# ============================================================
-
-def build_editorial_board():
-
-    body = load_template(
-        "editorial-board.html"
-    )
-
-    html = make_page(
-        "Editorial Board",
-        body,
-        "editorial",
-        ""
-    )
-
-    write_file(
-        SITE_DIR / "editorial-board.html",
-        html
-    )
 
 
 # ============================================================
@@ -1074,6 +1058,8 @@ def main():
     print("=" * 60)
     print("")
 
+    # Clean old build
+
     if SITE_DIR.exists():
 
         print("Cleaning old _site directory...")
@@ -1086,7 +1072,11 @@ def main():
         parents=True
     )
 
+    # Read articles
+
     articles = read_articles()
+
+    # Build homepage
 
     print("")
     print("Building homepage...")
@@ -1095,11 +1085,15 @@ def main():
         articles
     )
 
+    # Build archive
+
     print("Building article archive...")
 
     build_article_index(
         articles
     )
+
+    # Build articles
 
     print("Building individual articles...")
 
@@ -1107,9 +1101,7 @@ def main():
         articles
     )
 
-    print("Building Editorial Board...")
-
-    build_editorial_board()
+    # Build About
 
     print("Building About page...")
 
@@ -1120,6 +1112,8 @@ def main():
         "about"
     )
 
+    # Build Submit
+
     print("Building Submit page...")
 
     build_static_page(
@@ -1129,12 +1123,31 @@ def main():
         "submit"
     )
 
+    # Build Editorial Board
+
+    editorial_template = TEMPLATES_DIR / "editorial-board.html"
+
+    if editorial_template.exists():
+
+        print("Building Editorial Board page...")
+
+        build_static_page(
+            "editorial-board.html",
+            "editorial-board.html",
+            "Editorial Board",
+            "about"
+        )
+
+    # Copy CSS
+
     print("Copying stylesheet...")
 
     shutil.copy2(
         ROOT / "style.css",
         SITE_DIR / "style.css"
     )
+
+    # Done
 
     print("")
     print("=" * 60)
