@@ -11,14 +11,14 @@ TEMPLATES_DIR = ROOT / "templates"
 SITE_DIR = ROOT / "_site"
 
 
-# --------------------------------------------------
-# HELPERS
-# --------------------------------------------------
+# ============================================================
+# FRONT MATTER
+# ============================================================
 
 def parse_front_matter(text):
     """
-    Reads the YAML-like metadata at the top of an article.
-    This intentionally supports the small subset we need.
+    Parse the simple YAML-style metadata at the top of
+    each Markdown article.
     """
 
     if not text.startswith("---"):
@@ -29,12 +29,12 @@ def parse_front_matter(text):
     if len(parts) != 3:
         return {}, text
 
-    raw_metadata = parts[1].strip()
+    metadata_text = parts[1].strip()
     content = parts[2].strip()
 
     metadata = {}
 
-    for line in raw_metadata.splitlines():
+    for line in metadata_text.splitlines():
 
         if ":" not in line:
             continue
@@ -44,7 +44,11 @@ def parse_front_matter(text):
         key = key.strip()
         value = value.strip()
 
-        if value.startswith('"') and value.endswith('"'):
+        if (
+            len(value) >= 2
+            and value.startswith('"')
+            and value.endswith('"')
+        ):
             value = value[1:-1]
 
         metadata[key] = value
@@ -52,25 +56,61 @@ def parse_front_matter(text):
     return metadata, content
 
 
+# ============================================================
+# MARKDOWN
+# ============================================================
+
+def inline_markdown(text):
+    """
+    Convert a small, safe subset of Markdown to HTML.
+    """
+
+    text = escape(text)
+
+    # Bold
+    text = re.sub(
+        r"\*\*(.+?)\*\*",
+        r"<strong>\1</strong>",
+        text
+    )
+
+    # Italic
+    text = re.sub(
+        r"\*(.+?)\*",
+        r"<em>\1</em>",
+        text
+    )
+
+    # Inline code
+    text = re.sub(
+        r"`(.+?)`",
+        r"<code>\1</code>",
+        text
+    )
+
+    return text
+
+
 def markdown_to_html(markdown):
     """
-    Small Markdown converter for the journal.
-    Supports:
-      - headings
-      - paragraphs
-      - bullet lists
-      - blockquotes
-      - emphasis
-      - bold
+    Convert the basic Markdown used by the journal
+    into HTML.
     """
 
     lines = markdown.splitlines()
 
     output = []
 
+    paragraph = []
     in_list = False
 
-    paragraph = []
+    def close_list():
+
+        nonlocal in_list
+
+        if in_list:
+            output.append("</ul>")
+            in_list = False
 
     def flush_paragraph():
 
@@ -84,22 +124,8 @@ def markdown_to_html(markdown):
             for line in paragraph
         )
 
-        text = escape(text)
-
-        text = re.sub(
-            r"\*\*(.+?)\*\*",
-            r"<strong>\\1</strong>",
-            text
-        )
-
-        text = re.sub(
-            r"\*(.+?)\*",
-            r"<em>\\1</em>",
-            text
-        )
-
         output.append(
-            f"<p>{text}</p>"
+            f"<p>{inline_markdown(text)}</p>"
         )
 
         paragraph = []
@@ -111,30 +137,26 @@ def markdown_to_html(markdown):
         # Blank line
         if not stripped:
 
-            if in_list:
-                output.append("</ul>")
-                in_list = False
-
             flush_paragraph()
+            close_list()
 
             continue
 
         # Heading
-        heading = re.match(
+        match = re.match(
             r"^(#{1,6})\s+(.+)$",
             stripped
         )
 
-        if heading:
-
-            if in_list:
-                output.append("</ul>")
-                in_list = False
+        if match:
 
             flush_paragraph()
+            close_list()
 
-            level = len(heading.group(1))
-            text = escape(heading.group(2))
+            level = len(match.group(1))
+            text = inline_markdown(
+                match.group(2)
+            )
 
             output.append(
                 f"<h{level}>{text}</h{level}>"
@@ -142,13 +164,13 @@ def markdown_to_html(markdown):
 
             continue
 
-        # Bullet
-        bullet = re.match(
+        # Bullet list
+        match = re.match(
             r"^[-*]\s+(.+)$",
             stripped
         )
 
-        if bullet:
+        if match:
 
             flush_paragraph()
 
@@ -156,7 +178,9 @@ def markdown_to_html(markdown):
                 output.append("<ul>")
                 in_list = True
 
-            text = escape(bullet.group(1))
+            text = inline_markdown(
+                match.group(1)
+            )
 
             output.append(
                 f"<li>{text}</li>"
@@ -168,24 +192,30 @@ def markdown_to_html(markdown):
         if stripped.startswith(">"):
 
             flush_paragraph()
+            close_list()
 
             text = stripped[1:].strip()
 
             output.append(
-                f"<blockquote>{escape(text)}</blockquote>"
+                f"<blockquote>"
+                f"{inline_markdown(text)}"
+                f"</blockquote>"
             )
 
             continue
 
+        # Normal paragraph
         paragraph.append(stripped)
 
-    if in_list:
-        output.append("</ul>")
-
     flush_paragraph()
+    close_list()
 
     return "\n".join(output)
 
+
+# ============================================================
+# SLUGS
+# ============================================================
 
 def slugify(text):
 
@@ -203,110 +233,189 @@ def slugify(text):
         text
     )
 
+    text = re.sub(
+        r"-+",
+        "-",
+        text
+    )
+
     return text.strip("-")
 
+
+# ============================================================
+# ARTICLES
+# ============================================================
 
 def read_articles():
 
     articles = []
 
-    for path in ARTICLES_DIR.glob("*.md"):
+    if not ARTICLES_DIR.exists():
+
+        print("No articles directory found.")
+
+        return articles
+
+    article_files = sorted(
+        ARTICLES_DIR.glob("*.md")
+    )
+
+    for path in article_files:
+
+        print(
+            f"Reading article: {path}"
+        )
 
         text = path.read_text(
             encoding="utf-8"
         )
 
-        metadata, markdown = parse_front_matter(text)
-
-if not metadata.get("title"):
-    raise ValueError(
-        f"Article is missing a title: {path}"
-    )
-
-        date_string = metadata.get(
-            "date",
-            "1900-01-01"
+        metadata, markdown = parse_front_matter(
+            text
         )
 
+        if not metadata:
+
+            raise ValueError(
+                f"""
+Article could not be read:
+
+{path}
+
+Make sure the file begins with:
+
+---
+title: "Your Article Title"
+author: "Author Name"
+date: "2026-08-24"
+type: "Article"
+abstract: "Short description."
+---
+
+"""
+
+            )
+
+        required = [
+            "title",
+            "author",
+            "date",
+            "type",
+            "abstract",
+        ]
+
+        missing = [
+            field
+            for field in required
+            if not metadata.get(field)
+        ]
+
+        if missing:
+
+            raise ValueError(
+                f"""
+Article is missing required metadata:
+
+{path}
+
+Missing:
+{", ".join(missing)}
+
+"""
+
+            )
+
         try:
+
             date = datetime.strptime(
-                date_string,
+                metadata["date"],
                 "%Y-%m-%d"
             )
 
         except ValueError:
 
-            print(
-                f"Invalid date in {path}: "
-                f"{date_string}"
+            raise ValueError(
+                f"""
+Invalid date in:
+
+{path}
+
+Date must use:
+
+YYYY-MM-DD
+
+Example:
+
+date: "2026-08-24"
+"""
+
             )
 
-            date = datetime(1900, 1, 1)
+        title = metadata["title"]
 
-        article = {
-            "source": path,
-            "slug": slugify(
-                metadata["title"]
-            ),
-            "title": metadata["title"],
-            "author": metadata.get(
-                "author",
-                "The Editorial Board"
-            ),
-            "date": date,
-            "date_display": date.strftime(
-                "%d %B %Y"
-            ),
-            "type": metadata.get(
-                "type",
-                "Article"
-            ),
-            "abstract": metadata.get(
-                "abstract",
-                ""
-            ),
-            "content": markdown_to_html(
-                markdown
-            ),
-        }
+        slug = slugify(title)
 
-        articles.append(article)
+        if not slug:
 
+            raise ValueError(
+                f"Could not create URL slug for: {path}"
+            )
+
+        articles.append(
+            {
+                "source": path,
+                "slug": slug,
+                "title": title,
+                "author": metadata["author"],
+                "date": date,
+                "date_display": date.strftime(
+                    "%d %B %Y"
+                ),
+                "type": metadata["type"],
+                "abstract": metadata["abstract"],
+                "content": markdown_to_html(
+                    markdown
+                ),
+            }
+        )
+
+    # Newest first
     articles.sort(
         key=lambda article: article["date"],
         reverse=True
     )
 
+    print(
+        f"Found {len(articles)} article(s)."
+    )
+
     return articles
 
 
-def load_template(name):
+# ============================================================
+# TEMPLATES
+# ============================================================
 
-    path = TEMPLATES_DIR / name
+def load_template(filename):
+
+    path = TEMPLATES_DIR / filename
+
+    if not path.exists():
+
+        raise FileNotFoundError(
+            f"Missing template: {path}"
+        )
 
     return path.read_text(
         encoding="utf-8"
     )
 
 
-def write(path, content):
+# ============================================================
+# HEADER
+# ============================================================
 
-    path.parent.mkdir(
-        parents=True,
-        exist_ok=True
-    )
-
-    path.write_text(
-        content,
-        encoding="utf-8"
-    )
-
-
-# --------------------------------------------------
-# HTML COMPONENTS
-# --------------------------------------------------
-
-def header(active):
+def site_header(active):
 
     links = [
         ("Home", "index.html", "home"),
@@ -315,18 +424,18 @@ def header(active):
         ("About", "about.html", "about"),
     ]
 
-    nav = ""
+    navigation = []
 
     for label, url, key in links:
 
-        class_name = (
+        active_class = (
             "active"
             if active == key
             else ""
         )
 
-        nav += (
-            f'<a class="{class_name}" '
+        navigation.append(
+            f'<a class="{active_class}" '
             f'href="{url}">{label}</a>'
         )
 
@@ -356,7 +465,9 @@ def header(active):
     </a>
 
     <nav class="main-nav">
-      {nav}
+
+      {"".join(navigation)}
+
     </nav>
 
   </div>
@@ -365,7 +476,11 @@ def header(active):
 """
 
 
-def footer():
+# ============================================================
+# FOOTER
+# ============================================================
+
+def site_footer():
 
     return """
 <footer class="site-footer">
@@ -399,7 +514,11 @@ def footer():
 """
 
 
-def page(title, body, active):
+# ============================================================
+# PAGE WRAPPER
+# ============================================================
+
+def make_page(title, body, active):
 
     return f"""<!DOCTYPE html>
 
@@ -415,7 +534,8 @@ def page(title, body, active):
   >
 
   <title>
-    {escape(title)} | The Journal of Universal Acceptance
+    {escape(title)}
+    | The Journal of Universal Acceptance
   </title>
 
   <meta
@@ -429,7 +549,7 @@ def page(title, body, active):
 
 <body>
 
-{header(active)}
+{site_header(active)}
 
 <main>
 
@@ -437,7 +557,7 @@ def page(title, body, active):
 
 </main>
 
-{footer()}
+{site_footer()}
 
 </body>
 
@@ -445,9 +565,9 @@ def page(title, body, active):
 """
 
 
-# --------------------------------------------------
-# ARTICLE CARDS
-# --------------------------------------------------
+# ============================================================
+# ARTICLE CARD
+# ============================================================
 
 def article_card(article):
 
@@ -467,7 +587,7 @@ def article_card(article):
   </p>
 
   <p class="article-date">
-    {article["date_display"]}
+    {escape(article["date_display"])}
   </p>
 
   <p class="article-description">
@@ -485,18 +605,28 @@ def article_card(article):
 """
 
 
-# --------------------------------------------------
-# BUILD HOMEPAGE
-# --------------------------------------------------
+# ============================================================
+# HOMEPAGE
+# ============================================================
 
 def build_homepage(articles):
 
     latest = articles[:3]
 
-    cards = "\n".join(
-        article_card(article)
-        for article in latest
-    )
+    if latest:
+
+        cards = "\n".join(
+            article_card(article)
+            for article in latest
+        )
+
+    else:
+
+        cards = """
+<p>
+  No articles have been published yet.
+</p>
+"""
 
     body = f"""
 <section class="journal-banner">
@@ -628,28 +758,36 @@ def build_homepage(articles):
 </section>
 """
 
-    html = page(
-        "Home",
-        body,
-        "home"
-    )
-
-    write(
+    write_file(
         SITE_DIR / "index.html",
-        html
+        make_page(
+            "Home",
+            body,
+            "home"
+        )
     )
 
 
-# --------------------------------------------------
-# BUILD ARTICLE ARCHIVE
-# --------------------------------------------------
+# ============================================================
+# ARTICLE ARCHIVE
+# ============================================================
 
 def build_article_index(articles):
 
-    cards = "\n".join(
-        article_card(article)
-        for article in articles
-    )
+    if articles:
+
+        cards = "\n".join(
+            article_card(article)
+            for article in articles
+        )
+
+    else:
+
+        cards = """
+<p>
+  No articles have been published yet.
+</p>
+"""
 
     body = f"""
 <section class="container page-content">
@@ -676,23 +814,21 @@ def build_article_index(articles):
 </section>
 """
 
-    html = page(
-        "Articles",
-        body,
-        "articles"
-    )
-
-    write(
+    write_file(
         SITE_DIR / "articles.html",
-        html
+        make_page(
+            "Articles",
+            body,
+            "articles"
+        )
     )
 
 
-# --------------------------------------------------
-# BUILD INDIVIDUAL ARTICLES
-# --------------------------------------------------
+# ============================================================
+# INDIVIDUAL ARTICLE PAGES
+# ============================================================
 
-def build_articles(articles):
+def build_article_pages(articles):
 
     template = load_template(
         "article.html"
@@ -700,7 +836,7 @@ def build_articles(articles):
 
     for article in articles:
 
-        content = template
+        html = template
 
         replacements = {
             "{{TITLE}}": escape(
@@ -709,99 +845,177 @@ def build_articles(articles):
             "{{AUTHOR}}": escape(
                 article["author"]
             ),
-            "{{DATE}}": article[
-                "date_display"
-            ],
+            "{{DATE}}": escape(
+                article["date_display"]
+            ),
             "{{TYPE}}": escape(
                 article["type"]
             ),
             "{{ABSTRACT}}": escape(
                 article["abstract"]
             ),
-            "{{CONTENT}}": article[
-                "content"
-            ],
+            "{{CONTENT}}": article["content"],
         }
 
-        for key, value in replacements.items():
-            content = content.replace(
-                key,
+        for placeholder, value in replacements.items():
+
+            html = html.replace(
+                placeholder,
                 value
             )
 
-        write(
+        # Article pages are one directory deeper,
+        # so they need the stylesheet one level up.
+        html = html.replace(
+            'href="style.css"',
+            'href="../style.css"'
+        )
+
+        html = make_page(
+            article["title"],
+            html,
+            "articles"
+        )
+
+        article_path = (
             SITE_DIR
             / "articles"
-            / f'{article["slug"]}.html',
-            content
+            / f'{article["slug"]}.html'
+        )
+
+        write_file(
+            article_path,
+            html
         )
 
 
-# --------------------------------------------------
-# COPY STATIC FILES
-# --------------------------------------------------
+# ============================================================
+# STATIC PAGES
+# ============================================================
 
-def copy_static_files():
+def build_static_page(
+    template_name,
+    output_name,
+    title,
+    active
+):
+
+    body = load_template(
+        template_name
+    )
+
+    html = make_page(
+        title,
+        body,
+        active
+    )
+
+    write_file(
+        SITE_DIR / output_name,
+        html
+    )
+
+
+# ============================================================
+# FILE WRITING
+# ============================================================
+
+def write_file(path, content):
+
+    path.parent.mkdir(
+        parents=True,
+        exist_ok=True
+    )
+
+    path.write_text(
+        content,
+        encoding="utf-8"
+    )
+
+
+# ============================================================
+# MAIN BUILD
+# ============================================================
+
+def main():
+
+    print("")
+    print("=" * 60)
+    print("THE JOURNAL OF UNIVERSAL ACCEPTANCE")
+    print("Building site...")
+    print("=" * 60)
+    print("")
+
+    # Start with a completely clean build directory.
+    if SITE_DIR.exists():
+
+        shutil.rmtree(
+            SITE_DIR
+        )
+
+    SITE_DIR.mkdir(
+        parents=True
+    )
+
+    # Read articles.
+    articles = read_articles()
+
+    # Generate homepage.
+    print("Building homepage...")
+
+    build_homepage(
+        articles
+    )
+
+    # Generate archive.
+    print("Building article archive...")
+
+    build_article_index(
+        articles
+    )
+
+    # Generate individual articles.
+    print("Building article pages...")
+
+    build_article_pages(
+        articles
+    )
+
+    # Generate About page.
+    print("Building About page...")
+
+    build_static_page(
+        "about.html",
+        "about.html",
+        "About",
+        "about"
+    )
+
+    # Generate Submit page.
+    print("Building Submit page...")
+
+    build_static_page(
+        "submit.html",
+        "submit.html",
+        "Submit",
+        "submit"
+    )
+
+    # Copy CSS.
+    print("Copying stylesheet...")
 
     shutil.copy2(
         ROOT / "style.css",
         SITE_DIR / "style.css"
     )
 
-
-# --------------------------------------------------
-# MAIN
-# --------------------------------------------------
-
-def main():
-
-    if SITE_DIR.exists():
-        shutil.rmtree(SITE_DIR)
-
-    SITE_DIR.mkdir()
-
-    articles = read_articles()
-
+    print("")
+    print("=" * 60)
     print(
-        f"Found {len(articles)} article(s)."
+        f"BUILD SUCCESSFUL — {len(articles)} article(s)"
     )
-
-    build_homepage(articles)
-
-    build_article_index(articles)
-
-    build_articles(articles)
-
-    copy_static_files()
-
-    # Copy about and submit templates
-    for name, title, active in [
-        (
-            "about.html",
-            "About",
-            "about"
-        ),
-        (
-            "submit.html",
-            "Submit",
-            "submit"
-        ),
-    ]:
-
-        template = load_template(name)
-
-        html = page(
-            title,
-            template,
-            active
-        )
-
-        write(
-            SITE_DIR / name,
-            html
-        )
-
-    print("Build complete.")
+    print("=" * 60)
+    print("")
 
 
 if __name__ == "__main__":
