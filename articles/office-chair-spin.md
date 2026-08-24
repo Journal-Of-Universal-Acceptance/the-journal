@@ -5,6 +5,12 @@ date: "2026-08-18"
 type: "Classification Study"
 abstract: "This paper proposes a standardized classification system for rotational office-chair behaviour, including the dangerous but under-researched phenomenon of accidental over-rotation."
 reviewer: "Prof. Eustace Quibble, FJUA"
+keywords:
+  - office chairs
+  - rotational behaviour
+  - workplace phenomena
+  - motion studies
+  - unnecessary spinning
 ---
 
 ## Abstract
