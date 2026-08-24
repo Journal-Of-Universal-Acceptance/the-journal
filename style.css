@@ -19,8 +19,10 @@ html {
 
 body {
   margin: 0;
+
   background: var(--background);
   color: var(--text);
+
   font-family: Georgia, "Times New Roman", serif;
   line-height: 1.65;
 }
@@ -36,7 +38,9 @@ a {
 }
 
 
-/* HEADER */
+/* =========================================
+   HEADER
+========================================= */
 
 .site-header {
   background: var(--paper);
@@ -44,7 +48,7 @@ a {
 }
 
 .header-inner {
-  min-height: 72px;
+  min-height: 92px;
 
   display: flex;
   align-items: center;
@@ -56,6 +60,7 @@ a {
 .brand {
   display: flex;
   align-items: center;
+
   gap: 16px;
 }
 
@@ -77,23 +82,27 @@ a {
 
 .brand-name strong {
   display: block;
-  font-size: 14px;
+
+  font-size: 16px;
 }
 
 .brand-name small {
   display: block;
+
   margin-top: 2px;
 
   color: var(--muted);
 
   font-family: Arial, sans-serif;
-  font-size: 10px;
+  font-size: 9px;
+
   letter-spacing: 0.06em;
   text-transform: uppercase;
 }
 
 .main-nav {
   display: flex;
+
   gap: 28px;
 
   font-family: Arial, sans-serif;
@@ -110,12 +119,15 @@ a {
 }
 
 
-/* HERO */
+/* =========================================
+   HOME HERO
+========================================= */
 
 .journal-banner {
   padding: 100px 0 90px;
 
   background: var(--accent);
+
   color: white;
 }
 
@@ -126,6 +138,7 @@ a {
   font-family: Arial, sans-serif;
   font-size: 10px;
   font-weight: bold;
+
   letter-spacing: 0.13em;
 }
 
@@ -139,9 +152,13 @@ a {
 
 .journal-banner h1 {
   max-width: 850px;
+
   margin: 0;
-  font-size: clamp(36px, 5.25vw, 66px);
+
+  font-size: 66px;
+
   line-height: 1.05;
+
   letter-spacing: -0.04em;
 }
 
@@ -151,11 +168,14 @@ a {
   margin: 28px 0 0;
 
   font-size: 21px;
+
   opacity: 0.82;
 }
 
 
-/* GENERAL CONTENT */
+/* =========================================
+   GENERAL CONTENT
+========================================= */
 
 .content-section {
   padding: 90px 0;
@@ -175,6 +195,7 @@ a {
   margin: 0;
 
   font-size: 42px;
+
   line-height: 1.1;
 }
 
@@ -192,10 +213,13 @@ a {
 }
 
 
-/* ARTICLE CARDS */
+/* =========================================
+   ARTICLE CARDS
+========================================= */
 
 .article-grid {
   display: grid;
+
   grid-template-columns: repeat(3, 1fr);
 
   gap: 24px;
@@ -205,12 +229,17 @@ a {
   display: flex;
   flex-direction: column;
 
-  min-height: 380px;
+  min-height: 400px;
 
   padding: 30px;
 
   background: var(--paper);
+
   border: 1px solid var(--border);
+}
+
+.article-card:hover {
+  border-color: #b8b5ad;
 }
 
 .article-type {
@@ -219,23 +248,41 @@ a {
   color: var(--accent);
 
   font-family: Arial, sans-serif;
+
   font-size: 10px;
   font-weight: bold;
+
   letter-spacing: 0.1em;
+
+  text-transform: uppercase;
 }
 
 .article-card h3 {
   margin: 0 0 10px;
 
   font-size: 27px;
+
   line-height: 1.18;
 }
 
 .article-author {
+  margin: 0 0 6px;
+
+  color: var(--muted);
+
+  font-style: italic;
+}
+
+.article-date {
   margin: 0 0 22px;
 
   color: var(--muted);
-  font-style: italic;
+
+  font-family: Arial, sans-serif;
+
+  font-size: 10px;
+
+  letter-spacing: 0.04em;
 }
 
 .article-description {
@@ -246,16 +293,20 @@ a {
 
 .article-card .read-link {
   margin-top: auto;
+
   padding-top: 30px;
 }
 
 
-/* SUBMISSION BANNER */
+/* =========================================
+   SUBMISSION BANNER
+========================================= */
 
 .submission-banner {
   padding: 70px 0;
 
   background: var(--accent-light);
+
   border-top: 1px solid var(--border);
   border-bottom: 1px solid var(--border);
 }
@@ -276,6 +327,7 @@ a {
 
 .submission-banner p:not(.section-label) {
   margin: 0;
+
   color: var(--muted);
 }
 
@@ -285,22 +337,32 @@ a {
   justify-content: center;
 
   min-height: 50px;
+
   padding: 0 25px;
 
   background: var(--accent);
+
   color: white;
 
   font-family: Arial, sans-serif;
+
   font-size: 13px;
 
   white-space: nowrap;
 }
 
+.button:hover {
+  opacity: 0.9;
+}
 
-/* JOURNAL INFORMATION */
+
+/* =========================================
+   JOURNAL INFORMATION
+========================================= */
 
 .journal-information {
   display: grid;
+
   grid-template-columns: 1fr 1fr;
 
   gap: 80px;
@@ -310,16 +372,20 @@ a {
   margin: 0;
 
   font-size: 42px;
+
   line-height: 1.1;
 }
 
 .journal-information p:not(.section-label) {
   margin-top: 0;
+
   color: var(--muted);
 }
 
 
-/* PAGES */
+/* =========================================
+   GENERAL PAGES
+========================================= */
 
 .page-content {
   padding-top: 90px;
@@ -332,7 +398,9 @@ a {
   margin: 0 0 18px;
 
   font-size: clamp(48px, 7vw, 76px);
+
   line-height: 1.08;
+
   letter-spacing: -0.04em;
 }
 
@@ -342,11 +410,14 @@ a {
   margin-bottom: 70px;
 
   color: var(--muted);
+
   font-size: 20px;
 }
 
 
-/* FULL ARTICLES */
+/* =========================================
+   ARTICLE ARCHIVE
+========================================= */
 
 .full-article {
   max-width: 800px;
@@ -364,6 +435,7 @@ a {
   margin: 0 0 10px;
 
   font-size: 42px;
+
   line-height: 1.12;
 }
 
@@ -372,7 +444,319 @@ a {
 }
 
 
-/* SUBMIT */
+/* =========================================
+   INDIVIDUAL ARTICLE PAGES
+========================================= */
+
+.article-shell {
+  background: var(--paper);
+
+  padding-bottom: 110px;
+}
+
+
+/* Breadcrumb */
+
+.article-breadcrumb {
+  display: flex;
+  align-items: center;
+
+  gap: 10px;
+
+  padding: 25px 0;
+
+  border-bottom: 1px solid var(--border);
+
+  color: var(--muted);
+
+  font-family: Arial, sans-serif;
+
+  font-size: 11px;
+}
+
+.article-breadcrumb a:hover {
+  color: var(--accent);
+}
+
+
+/* Article Header */
+
+.article-header {
+  max-width: 950px;
+
+  padding: 75px 0 55px;
+}
+
+.article-header .article-type {
+  margin-bottom: 18px;
+
+  color: var(--accent);
+
+  font-family: Arial, sans-serif;
+
+  font-size: 11px;
+  font-weight: bold;
+
+  letter-spacing: 0.13em;
+
+  text-transform: uppercase;
+}
+
+.article-title {
+  max-width: 950px;
+
+  margin: 0 0 45px;
+
+  font-size: clamp(44px, 6vw, 72px);
+
+  line-height: 1.08;
+
+  letter-spacing: -0.04em;
+}
+
+
+/* Article Metadata */
+
+.article-meta {
+  display: flex;
+
+  gap: 50px;
+
+  padding-top: 25px;
+
+  border-top: 1px solid var(--border);
+}
+
+.article-meta > div {
+  display: flex;
+  flex-direction: column;
+
+  gap: 4px;
+}
+
+.meta-label {
+  color: var(--muted);
+
+  font-family: Arial, sans-serif;
+
+  font-size: 9px;
+  font-weight: bold;
+
+  letter-spacing: 0.12em;
+}
+
+.article-meta strong {
+  font-size: 14px;
+
+  font-weight: normal;
+}
+
+
+/* Article Layout */
+
+.article-layout {
+  display: grid;
+
+  grid-template-columns: 220px minmax(0, 800px);
+
+  gap: 70px;
+
+  align-items: start;
+
+  padding-top: 55px;
+
+  border-top: 1px solid var(--border);
+}
+
+
+/* Article Sidebar */
+
+.article-sidebar {
+  position: sticky;
+
+  top: 30px;
+}
+
+.sidebar-block {
+  margin-bottom: 40px;
+}
+
+.sidebar-label {
+  display: block;
+
+  margin-bottom: 12px;
+
+  color: var(--accent);
+
+  font-family: Arial, sans-serif;
+
+  font-size: 9px;
+  font-weight: bold;
+
+  letter-spacing: 0.12em;
+}
+
+.sidebar-block p {
+  margin: 4px 0;
+
+  color: var(--muted);
+
+  font-family: Arial, sans-serif;
+
+  font-size: 11px;
+
+  line-height: 1.6;
+}
+
+.sidebar-block .citation {
+  font-family: Georgia, "Times New Roman", serif;
+
+  font-size: 12px;
+
+  line-height: 1.6;
+}
+
+
+/* Article Main Content */
+
+.article-content {
+  min-width: 0;
+}
+
+
+/* Abstract */
+
+.article-abstract {
+  margin-bottom: 60px;
+
+  padding: 30px 35px;
+
+  background: var(--accent-light);
+
+  border-left: 4px solid var(--accent);
+}
+
+.abstract-label {
+  margin: 0 0 12px;
+
+  color: var(--accent);
+
+  font-family: Arial, sans-serif;
+
+  font-size: 10px;
+  font-weight: bold;
+
+  letter-spacing: 0.13em;
+}
+
+.article-abstract > p:last-child {
+  margin: 0;
+
+  color: #444;
+
+  font-size: 17px;
+
+  line-height: 1.7;
+}
+
+
+/* Article Body */
+
+.article-body {
+  font-size: 18px;
+
+  line-height: 1.8;
+}
+
+.article-body p {
+  margin: 0 0 27px;
+}
+
+.article-body h2 {
+  margin: 60px 0 20px;
+
+  font-size: 34px;
+
+  line-height: 1.2;
+}
+
+.article-body h3 {
+  margin: 45px 0 15px;
+
+  font-size: 25px;
+
+  line-height: 1.25;
+}
+
+.article-body ul {
+  margin: 25px 0 30px;
+
+  padding-left: 30px;
+}
+
+.article-body li {
+  margin-bottom: 10px;
+}
+
+.article-body blockquote {
+  margin: 40px 0;
+
+  padding: 5px 0 5px 30px;
+
+  border-left: 3px solid var(--accent);
+
+  color: var(--muted);
+
+  font-style: italic;
+}
+
+
+/* Article Footer */
+
+.article-end {
+  margin-top: 80px;
+}
+
+.article-end-rule {
+  width: 100%;
+
+  height: 1px;
+
+  margin-bottom: 25px;
+
+  background: var(--border);
+}
+
+.article-end p {
+  margin: 0 0 12px;
+
+  color: var(--muted);
+
+  font-family: Arial, sans-serif;
+
+  font-size: 10px;
+
+  text-transform: uppercase;
+
+  letter-spacing: 0.08em;
+}
+
+.article-end a {
+  color: var(--accent);
+
+  font-family: Arial, sans-serif;
+
+  font-size: 13px;
+}
+
+.article-end a:hover {
+  text-decoration: underline;
+}
+
+
+/* =========================================
+   SUBMIT PAGE
+========================================= */
 
 .submit-page {
   min-height: 65vh;
@@ -389,6 +773,7 @@ a {
   margin-top: 0;
 
   font-size: clamp(48px, 7vw, 76px);
+
   line-height: 1.08;
 }
 
@@ -396,6 +781,7 @@ a {
   max-width: 650px;
 
   font-size: 20px;
+
   color: var(--muted);
 }
 
@@ -422,7 +808,9 @@ a {
 }
 
 
-/* ABOUT */
+/* =========================================
+   ABOUT PAGE
+========================================= */
 
 .about-text {
   max-width: 780px;
@@ -438,14 +826,17 @@ a {
   max-width: 850px;
 
   margin-top: 80px;
+
   padding: 45px;
 
   background: var(--accent-light);
+
   border-left: 5px solid var(--accent);
 }
 
 .disclosure h2 {
   margin-top: 0;
+
   font-size: 36px;
 }
 
@@ -454,12 +845,15 @@ a {
 }
 
 
-/* FOOTER */
+/* =========================================
+   FOOTER
+========================================= */
 
 .site-footer {
   padding: 45px 0;
 
   background: #202522;
+
   color: white;
 }
 
@@ -485,16 +879,24 @@ a {
 
 .footer-links {
   display: flex;
+
   gap: 22px;
 
   color: #d7ddd8;
 
   font-family: Arial, sans-serif;
+
   font-size: 12px;
 }
 
+.footer-links a:hover {
+  color: white;
+}
 
-/* MOBILE */
+
+/* =========================================
+   TABLET
+========================================= */
 
 @media (max-width: 850px) {
 
@@ -502,6 +904,7 @@ a {
   .submission-banner-inner,
   .footer-inner {
     flex-direction: column;
+
     align-items: flex-start;
   }
 
@@ -518,16 +921,45 @@ a {
     gap: 30px;
   }
 
+  .article-layout {
+    grid-template-columns: 1fr;
+
+    gap: 35px;
+  }
+
+  .article-sidebar {
+    position: static;
+
+    display: grid;
+
+    grid-template-columns: 1fr 1fr;
+
+    gap: 30px;
+
+    padding-bottom: 30px;
+
+    border-bottom: 1px solid var(--border);
+  }
+
 }
+
+
+/* =========================================
+   MOBILE
+========================================= */
 
 @media (max-width: 600px) {
 
   .container {
-    width: min(calc(100% - 32px), var(--max-width));
+    width: min(
+      calc(100% - 32px),
+      var(--max-width)
+    );
   }
 
   .main-nav {
     width: 100%;
+
     justify-content: space-between;
 
     gap: 10px;
@@ -541,13 +973,31 @@ a {
     font-size: 8px;
   }
 
+  .journal-banner {
+    padding: 70px 0 65px;
+  }
+
+  .journal-banner h1 {
+    font-size: 42px;
+  }
+
+  .journal-subtitle {
+    font-size: 18px;
+  }
+
   .section-header {
     flex-direction: column;
+
     align-items: flex-start;
+  }
+
+  .section-header h2 {
+    font-size: 34px;
   }
 
   .submission-status {
     flex-direction: column;
+
     gap: 8px;
   }
 
@@ -559,172 +1009,34 @@ a {
     padding: 30px;
   }
 
-/* =========================================
-   GENERATED ARTICLE SYSTEM
-========================================= */
+  .article-breadcrumb {
+    flex-wrap: wrap;
+  }
 
-.article-date {
-  margin: -14px 0 20px;
+  .article-header {
+    padding: 50px 0 40px;
+  }
 
-  color: var(--muted);
+  .article-title {
+    font-size: 42px;
+  }
 
-  font-family: Arial, sans-serif;
-  font-size: 11px;
-}
-
-
-/* INDIVIDUAL ARTICLE */
-
-.article-page {
-  padding-top: 90px;
-  padding-bottom: 110px;
-}
-
-.article-title {
-  max-width: 900px;
-
-  margin: 0 0 30px;
-
-  font-size: clamp(46px, 7vw, 76px);
-
-  line-height: 1.08;
-
-  letter-spacing: -0.04em;
-}
-
-.article-byline {
-  display: flex;
-
-  gap: 30px;
-
-  padding: 18px 0;
-
-  border-top: 1px solid var(--border);
-  border-bottom: 1px solid var(--border);
-
-  color: var(--muted);
-
-  font-family: Arial, sans-serif;
-  font-size: 12px;
-}
-
-.article-abstract {
-  max-width: 800px;
-
-  margin: 55px 0;
-
-  padding: 30px;
-
-  background: var(--accent-light);
-
-  border-left: 4px solid var(--accent);
-}
-
-.article-abstract strong {
-  display: block;
-
-  margin-bottom: 12px;
-
-  color: var(--accent);
-
-  font-family: Arial, sans-serif;
-
-  font-size: 11px;
-
-  letter-spacing: 0.1em;
-
-  text-transform: uppercase;
-}
-
-.article-abstract p {
-  margin: 0;
-
-  color: var(--muted);
-
-  font-size: 18px;
-}
-
-.article-body {
-  max-width: 800px;
-
-  font-size: 18px;
-}
-
-.article-body h2 {
-  margin-top: 55px;
-
-  font-size: 34px;
-}
-
-.article-body h3 {
-  margin-top: 40px;
-
-  font-size: 26px;
-}
-
-.article-body p {
-  margin: 0 0 24px;
-}
-
-.article-body ul {
-  margin: 25px 0;
-  padding-left: 30px;
-}
-
-.article-body li {
-  margin-bottom: 8px;
-}
-
-.article-body blockquote {
-  margin: 30px 0;
-
-  padding-left: 25px;
-
-  border-left: 3px solid var(--accent);
-
-  color: var(--muted);
-
-  font-style: italic;
-}
-
-.article-footer-note {
-  max-width: 800px;
-
-  margin-top: 70px;
-
-  padding-top: 25px;
-
-  border-top: 1px solid var(--border);
-
-  color: var(--muted);
-
-  font-family: Arial, sans-serif;
-
-  font-size: 12px;
-}
-
-.article-footer-note a {
-  color: var(--accent);
-}
-
-
-/* MOBILE ARTICLE */
-
-@media (max-width: 600px) {
-
-  .article-byline {
+  .article-meta {
     flex-direction: column;
-    gap: 5px;
+
+    gap: 18px;
+  }
+
+  .article-sidebar {
+    grid-template-columns: 1fr;
   }
 
   .article-abstract {
-    padding: 24px;
+    padding: 25px;
   }
 
   .article-body {
     font-size: 17px;
   }
-
-}
 
 }
