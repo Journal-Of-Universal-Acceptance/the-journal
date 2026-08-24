@@ -1,10 +1,16 @@
 ---
 title: "Toward a Unified Theory of the Missing Tupperware Lid"
-author: "The Journal of Universal Acceptance"
+author: "Prof. Reginald P. Puddifoot"
 date: "2026-08-24"
 type: "Research Article"
-abstract: "A preliminary investigation into the persistent disappearance of Tupperware lids within domestic and institutional environments."
-reviewer: "Prof. Reginald P. Puddifoot, FJUA"
+abstract: "..."
+submitted: "2026-08-20"
+accepted: "2026-08-24"
+keywords:
+  - Tupperware
+  - Kitchen Science
+  - Domestic Phenomena
+  - Missing Objects
 ---
 
 
