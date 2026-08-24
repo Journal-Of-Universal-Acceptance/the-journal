@@ -5,6 +5,12 @@ date: "2026-08-21"
 type: "Philosophical Inquiry"
 abstract: "An investigation into the momentary collapse of intention, memory, and personal dignity that occurs upon crossing a domestic threshold."
 reviewer: "Dr. Mildred Biscuit, FJUA"
+keywords:
+  - memory
+  - prospective cognition
+  - room transitions
+  - domestic phenomena
+  - forgotten intentions
 ---
 
 ## Abstract
