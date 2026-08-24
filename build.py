@@ -15,7 +15,6 @@ ARTICLES_DIR = ROOT / "articles"
 TEMPLATES_DIR = ROOT / "templates"
 SITE_DIR = ROOT / "_site"
 
-
 SITE_TITLE = "The Journal of Universal Acceptance"
 
 
@@ -58,19 +57,19 @@ def load_template(filename):
 
 def parse_front_matter(text):
     """
-    Read the metadata at the beginning of a Markdown article.
+    Read metadata from the beginning of a Markdown article.
 
-    Expected format:
+    Example:
 
     ---
-    title: "Article title"
-    author: "Author"
+    title: "Article Title"
+    author: "Author Name"
     date: "2026-08-24"
     type: "Research Article"
     abstract: "Short description."
     ---
 
-    Article content begins here.
+    Article content goes here.
     """
 
     if not text.startswith("---"):
@@ -96,7 +95,6 @@ def parse_front_matter(text):
         key = key.strip()
         value = value.strip()
 
-        # Remove surrounding quotes.
         if (
             len(value) >= 2
             and value.startswith('"')
@@ -114,28 +112,22 @@ def parse_front_matter(text):
 # ============================================================
 
 def inline_markdown(text):
-    """
-    Convert the small subset of Markdown used by the journal
-    into HTML.
-    """
+    """Convert basic inline Markdown to HTML."""
 
     text = escape(text)
 
-    # Inline code
     text = re.sub(
         r"`(.+?)`",
         r"<code>\1</code>",
         text
     )
 
-    # Bold
     text = re.sub(
         r"\*\*(.+?)\*\*",
         r"<strong>\1</strong>",
         text
     )
 
-    # Italic
     text = re.sub(
         r"\*(.+?)\*",
         r"<em>\1</em>",
@@ -147,9 +139,9 @@ def inline_markdown(text):
 
 def markdown_to_html(markdown):
     """
-    Convert basic Markdown into HTML.
+    Convert basic Markdown to HTML.
 
-    Supports:
+    Supported:
 
     # Heading
     ## Heading
@@ -157,8 +149,8 @@ def markdown_to_html(markdown):
 
     Paragraphs
 
-    - Bullet lists
-    * Bullet lists
+    - Lists
+    * Lists
 
     > Blockquotes
 
@@ -175,7 +167,6 @@ def markdown_to_html(markdown):
     in_list = False
 
     def close_list():
-
         nonlocal in_list
 
         if in_list:
@@ -183,7 +174,6 @@ def markdown_to_html(markdown):
             in_list = False
 
     def flush_paragraph():
-
         nonlocal paragraph
 
         if not paragraph:
@@ -204,10 +194,7 @@ def markdown_to_html(markdown):
 
         stripped = line.strip()
 
-        # ----------------------------------------------------
         # Blank line
-        # ----------------------------------------------------
-
         if not stripped:
 
             flush_paragraph()
@@ -215,10 +202,7 @@ def markdown_to_html(markdown):
 
             continue
 
-        # ----------------------------------------------------
         # Headings
-        # ----------------------------------------------------
-
         heading_match = re.match(
             r"^(#{1,6})\s+(.+)$",
             stripped
@@ -243,10 +227,7 @@ def markdown_to_html(markdown):
 
             continue
 
-        # ----------------------------------------------------
         # Bullet lists
-        # ----------------------------------------------------
-
         list_match = re.match(
             r"^[-*]\s+(.+)$",
             stripped
@@ -270,10 +251,7 @@ def markdown_to_html(markdown):
 
             continue
 
-        # ----------------------------------------------------
         # Blockquotes
-        # ----------------------------------------------------
-
         if stripped.startswith(">"):
 
             flush_paragraph()
@@ -289,10 +267,7 @@ def markdown_to_html(markdown):
 
             continue
 
-        # ----------------------------------------------------
         # Normal paragraph
-        # ----------------------------------------------------
-
         paragraph.append(stripped)
 
     flush_paragraph()
@@ -306,7 +281,7 @@ def markdown_to_html(markdown):
 # ============================================================
 
 def slugify(text):
-    """Turn an article title into a URL-friendly slug."""
+    """Turn a title into a URL-friendly slug."""
 
     text = text.lower()
 
@@ -365,9 +340,7 @@ def read_articles():
             text
         )
 
-        # ----------------------------------------------------
         # Validate metadata
-        # ----------------------------------------------------
 
         required_fields = [
             "title",
@@ -386,30 +359,12 @@ def read_articles():
         if missing:
 
             raise ValueError(
-                f"""
-Article is missing required metadata:
-
-{path}
-
-Missing:
-{", ".join(missing)}
-
-An article should begin with:
-
----
-title: "Article Title"
-author: "Author Name"
-date: "2026-08-24"
-type: "Research Article"
-abstract: "Short description."
----
-
-"""
+                f"Article is missing required metadata: "
+                f"{path}\n"
+                f"Missing: {', '.join(missing)}"
             )
 
-        # ----------------------------------------------------
         # Validate date
-        # ----------------------------------------------------
 
         try:
 
@@ -421,38 +376,23 @@ abstract: "Short description."
         except ValueError:
 
             raise ValueError(
-                f"""
-Invalid date in:
-
-{path}
-
-Use:
-
-YYYY-MM-DD
-
-For example:
-
-date: "2026-08-24"
-"""
+                f"Invalid date in {path}. "
+                f"Use YYYY-MM-DD."
             )
 
-        # ----------------------------------------------------
         # Create slug
-        # ----------------------------------------------------
 
         slug = slugify(
             metadata["title"]
         )
 
-if not slug:
+        if not slug:
 
-    raise ValueError(
-        f"Could not create URL slug for:\n\n{path}"
-    )
+            raise ValueError(
+                f"Could not create URL slug for: {path}"
+            )
 
-        # ----------------------------------------------------
         # Store article
-        # ----------------------------------------------------
 
         articles.append(
             {
@@ -472,7 +412,8 @@ if not slug:
             }
         )
 
-    # Newest first.
+    # Newest first
+
     articles.sort(
         key=lambda article: article["date"],
         reverse=True
@@ -486,17 +427,10 @@ if not slug:
 
 
 # ============================================================
-# NAVIGATION
+# HEADER
 # ============================================================
 
 def site_header(active, prefix=""):
-    """
-    Create the site header.
-
-    prefix is:
-        ""     for root-level pages
-        "../"  for article pages
-    """
 
     links = [
         ("Home", "index.html", "home"),
@@ -612,19 +546,7 @@ def site_footer(prefix=""):
 # PAGE WRAPPER
 # ============================================================
 
-def make_page(
-    title,
-    body,
-    active,
-    prefix=""
-):
-    """
-    Wrap content in the common site structure.
-
-    prefix:
-        ""     root pages
-        "../"  article pages
-    """
+def make_page(title, body, active, prefix=""):
 
     return f"""<!DOCTYPE html>
 
@@ -830,41 +752,6 @@ def build_homepage(articles):
   </div>
 
 </section>
-
-
-<section class="container content-section journal-information">
-
-  <div>
-
-    <p class="section-label">
-      ABOUT THE JOURNAL
-    </p>
-
-    <h2>
-      A commitment to universal publication.
-    </h2>
-
-  </div>
-
-  <div>
-
-    <p>
-      The Journal of Universal Acceptance is an independent,
-      multidisciplinary publication committed to ensuring
-      that submitted work receives the opportunity to enter
-      the published record.
-    </p>
-
-    <a
-      href="about.html"
-      class="text-link"
-    >
-      Learn more about the journal →
-    </a>
-
-  </div>
-
-</section>
 """
 
     write_file(
@@ -975,8 +862,6 @@ def build_article_pages(articles):
                 value
             )
 
-        # Article pages live inside /articles/,
-        # so all shared navigation and CSS need ../
         html = make_page(
             article["title"],
             html,
@@ -996,7 +881,7 @@ def build_article_pages(articles):
         )
 
         print(
-            f"  Created: {article_path}"
+            f"Created: {article_path}"
         )
 
 
@@ -1029,21 +914,19 @@ def build_static_page(
 
 
 # ============================================================
-# MAIN BUILD
+# MAIN
 # ============================================================
 
 def main():
 
     print("")
     print("=" * 60)
-    print(SITE_TITLE)
+    print("THE JOURNAL OF UNIVERSAL ACCEPTANCE")
     print("Building site...")
     print("=" * 60)
     print("")
 
-    # --------------------------------------------------------
     # Clean old build
-    # --------------------------------------------------------
 
     if SITE_DIR.exists():
 
@@ -1057,15 +940,11 @@ def main():
         parents=True
     )
 
-    # --------------------------------------------------------
     # Read articles
-    # --------------------------------------------------------
 
     articles = read_articles()
 
-    # --------------------------------------------------------
-    # Build pages
-    # --------------------------------------------------------
+    # Build homepage
 
     print("")
     print("Building homepage...")
@@ -1074,17 +953,23 @@ def main():
         articles
     )
 
+    # Build archive
+
     print("Building article archive...")
 
     build_article_index(
         articles
     )
 
+    # Build articles
+
     print("Building individual articles...")
 
     build_article_pages(
         articles
     )
+
+    # Build About
 
     print("Building About page...")
 
@@ -1095,6 +980,8 @@ def main():
         "about"
     )
 
+    # Build Submit
+
     print("Building Submit page...")
 
     build_static_page(
@@ -1104,9 +991,7 @@ def main():
         "submit"
     )
 
-    # --------------------------------------------------------
-    # Copy stylesheet
-    # --------------------------------------------------------
+    # Copy CSS
 
     print("Copying stylesheet...")
 
@@ -1115,9 +1000,7 @@ def main():
         SITE_DIR / "style.css"
     )
 
-    # --------------------------------------------------------
-    # Finished
-    # --------------------------------------------------------
+    # Done
 
     print("")
     print("=" * 60)
@@ -1127,10 +1010,6 @@ def main():
     print("=" * 60)
     print("")
 
-
-# ============================================================
-# ENTRY POINT
-# ============================================================
 
 if __name__ == "__main__":
     main()
