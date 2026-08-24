@@ -5,10 +5,51 @@ import re
 import shutil
 
 
+# ============================================================
+# CONFIGURATION
+# ============================================================
+
 ROOT = Path(__file__).parent
+
 ARTICLES_DIR = ROOT / "articles"
 TEMPLATES_DIR = ROOT / "templates"
 SITE_DIR = ROOT / "_site"
+
+
+SITE_TITLE = "The Journal of Universal Acceptance"
+
+
+# ============================================================
+# FILE HELPERS
+# ============================================================
+
+def write_file(path, content):
+    """Write text to a file, creating directories as needed."""
+
+    path.parent.mkdir(
+        parents=True,
+        exist_ok=True
+    )
+
+    path.write_text(
+        content,
+        encoding="utf-8"
+    )
+
+
+def load_template(filename):
+    """Load a template from the templates directory."""
+
+    path = TEMPLATES_DIR / filename
+
+    if not path.exists():
+        raise FileNotFoundError(
+            f"Missing template: {path}"
+        )
+
+    return path.read_text(
+        encoding="utf-8"
+    )
 
 
 # ============================================================
@@ -17,8 +58,19 @@ SITE_DIR = ROOT / "_site"
 
 def parse_front_matter(text):
     """
-    Parse the simple YAML-style metadata at the top of
-    each Markdown article.
+    Read the metadata at the beginning of a Markdown article.
+
+    Expected format:
+
+    ---
+    title: "Article title"
+    author: "Author"
+    date: "2026-08-24"
+    type: "Research Article"
+    abstract: "Short description."
+    ---
+
+    Article content begins here.
     """
 
     if not text.startswith("---"):
@@ -44,6 +96,7 @@ def parse_front_matter(text):
         key = key.strip()
         value = value.strip()
 
+        # Remove surrounding quotes.
         if (
             len(value) >= 2
             and value.startswith('"')
@@ -62,10 +115,18 @@ def parse_front_matter(text):
 
 def inline_markdown(text):
     """
-    Convert a small, safe subset of Markdown to HTML.
+    Convert the small subset of Markdown used by the journal
+    into HTML.
     """
 
     text = escape(text)
+
+    # Inline code
+    text = re.sub(
+        r"`(.+?)`",
+        r"<code>\1</code>",
+        text
+    )
 
     # Bold
     text = re.sub(
@@ -81,20 +142,29 @@ def inline_markdown(text):
         text
     )
 
-    # Inline code
-    text = re.sub(
-        r"`(.+?)`",
-        r"<code>\1</code>",
-        text
-    )
-
     return text
 
 
 def markdown_to_html(markdown):
     """
-    Convert the basic Markdown used by the journal
-    into HTML.
+    Convert basic Markdown into HTML.
+
+    Supports:
+
+    # Heading
+    ## Heading
+    ### Heading
+
+    Paragraphs
+
+    - Bullet lists
+    * Bullet lists
+
+    > Blockquotes
+
+    **bold**
+    *italic*
+    `code`
     """
 
     lines = markdown.splitlines()
@@ -134,7 +204,10 @@ def markdown_to_html(markdown):
 
         stripped = line.strip()
 
+        # ----------------------------------------------------
         # Blank line
+        # ----------------------------------------------------
+
         if not stripped:
 
             flush_paragraph()
@@ -142,35 +215,44 @@ def markdown_to_html(markdown):
 
             continue
 
-        # Heading
-        match = re.match(
+        # ----------------------------------------------------
+        # Headings
+        # ----------------------------------------------------
+
+        heading_match = re.match(
             r"^(#{1,6})\s+(.+)$",
             stripped
         )
 
-        if match:
+        if heading_match:
 
             flush_paragraph()
             close_list()
 
-            level = len(match.group(1))
-            text = inline_markdown(
-                match.group(2)
+            level = len(
+                heading_match.group(1)
+            )
+
+            heading_text = inline_markdown(
+                heading_match.group(2)
             )
 
             output.append(
-                f"<h{level}>{text}</h{level}>"
+                f"<h{level}>{heading_text}</h{level}>"
             )
 
             continue
 
-        # Bullet list
-        match = re.match(
+        # ----------------------------------------------------
+        # Bullet lists
+        # ----------------------------------------------------
+
+        list_match = re.match(
             r"^[-*]\s+(.+)$",
             stripped
         )
 
-        if match:
+        if list_match:
 
             flush_paragraph()
 
@@ -178,33 +260,39 @@ def markdown_to_html(markdown):
                 output.append("<ul>")
                 in_list = True
 
-            text = inline_markdown(
-                match.group(1)
+            item = inline_markdown(
+                list_match.group(1)
             )
 
             output.append(
-                f"<li>{text}</li>"
+                f"<li>{item}</li>"
             )
 
             continue
 
-        # Blockquote
+        # ----------------------------------------------------
+        # Blockquotes
+        # ----------------------------------------------------
+
         if stripped.startswith(">"):
 
             flush_paragraph()
             close_list()
 
-            text = stripped[1:].strip()
+            quote = stripped[1:].strip()
 
             output.append(
-                f"<blockquote>"
-                f"{inline_markdown(text)}"
-                f"</blockquote>"
+                "<blockquote>"
+                f"{inline_markdown(quote)}"
+                "</blockquote>"
             )
 
             continue
 
+        # ----------------------------------------------------
         # Normal paragraph
+        # ----------------------------------------------------
+
         paragraph.append(stripped)
 
     flush_paragraph()
@@ -214,10 +302,11 @@ def markdown_to_html(markdown):
 
 
 # ============================================================
-# SLUGS
+# SLUG GENERATION
 # ============================================================
 
 def slugify(text):
+    """Turn an article title into a URL-friendly slug."""
 
     text = text.lower()
 
@@ -243,7 +332,7 @@ def slugify(text):
 
 
 # ============================================================
-# ARTICLES
+# READ ARTICLES
 # ============================================================
 
 def read_articles():
@@ -252,7 +341,9 @@ def read_articles():
 
     if not ARTICLES_DIR.exists():
 
-        print("No articles directory found.")
+        print(
+            "WARNING: articles directory does not exist."
+        )
 
         return articles
 
@@ -274,29 +365,11 @@ def read_articles():
             text
         )
 
-        if not metadata:
+        # ----------------------------------------------------
+        # Validate metadata
+        # ----------------------------------------------------
 
-            raise ValueError(
-                f"""
-Article could not be read:
-
-{path}
-
-Make sure the file begins with:
-
----
-title: "Your Article Title"
-author: "Author Name"
-date: "2026-08-24"
-type: "Article"
-abstract: "Short description."
----
-
-"""
-
-            )
-
-        required = [
+        required_fields = [
             "title",
             "author",
             "date",
@@ -306,7 +379,7 @@ abstract: "Short description."
 
         missing = [
             field
-            for field in required
+            for field in required_fields
             if not metadata.get(field)
         ]
 
@@ -321,9 +394,22 @@ Article is missing required metadata:
 Missing:
 {", ".join(missing)}
 
-"""
+An article should begin with:
 
+---
+title: "Article Title"
+author: "Author Name"
+date: "2026-08-24"
+type: "Research Article"
+abstract: "Short description."
+---
+
+"""
             )
+
+        # ----------------------------------------------------
+        # Validate date
+        # ----------------------------------------------------
 
         try:
 
@@ -340,32 +426,42 @@ Invalid date in:
 
 {path}
 
-Date must use:
+Use:
 
 YYYY-MM-DD
 
-Example:
+For example:
 
 date: "2026-08-24"
 """
-
             )
 
-        title = metadata["title"]
+        # ----------------------------------------------------
+        # Create slug
+        # ----------------------------------------------------
 
-        slug = slugify(title)
+        slug = slugify(
+            metadata["title"]
+        )
 
         if not slug:
 
             raise ValueError(
-                f"Could not create URL slug for: {path}"
+                f"Could not create URL slug for:
+
+{path}
+"
             )
+
+        # ----------------------------------------------------
+        # Store article
+        # ----------------------------------------------------
 
         articles.append(
             {
                 "source": path,
                 "slug": slug,
-                "title": title,
+                "title": metadata["title"],
                 "author": metadata["author"],
                 "date": date,
                 "date_display": date.strftime(
@@ -379,7 +475,7 @@ date: "2026-08-24"
             }
         )
 
-    # Newest first
+    # Newest first.
     articles.sort(
         key=lambda article: article["date"],
         reverse=True
@@ -393,29 +489,17 @@ date: "2026-08-24"
 
 
 # ============================================================
-# TEMPLATES
+# NAVIGATION
 # ============================================================
 
-def load_template(filename):
+def site_header(active, prefix=""):
+    """
+    Create the site header.
 
-    path = TEMPLATES_DIR / filename
-
-    if not path.exists():
-
-        raise FileNotFoundError(
-            f"Missing template: {path}"
-        )
-
-    return path.read_text(
-        encoding="utf-8"
-    )
-
-
-# ============================================================
-# HEADER
-# ============================================================
-
-def site_header(active):
+    prefix is:
+        ""     for root-level pages
+        "../"  for article pages
+    """
 
     links = [
         ("Home", "index.html", "home"),
@@ -436,7 +520,9 @@ def site_header(active):
 
         navigation.append(
             f'<a class="{active_class}" '
-            f'href="{url}">{label}</a>'
+            f'href="{prefix}{url}">'
+            f'{label}'
+            f'</a>'
         )
 
     return f"""
@@ -444,7 +530,7 @@ def site_header(active):
 
   <div class="container header-inner">
 
-    <a href="index.html" class="brand">
+    <a href="{prefix}index.html" class="brand">
 
       <span class="brand-abbreviation">
         JUA
@@ -480,9 +566,9 @@ def site_header(active):
 # FOOTER
 # ============================================================
 
-def site_footer():
+def site_footer(prefix=""):
 
-    return """
+    return f"""
 <footer class="site-footer">
 
   <div class="container footer-inner">
@@ -490,7 +576,7 @@ def site_footer():
     <div>
 
       <strong>
-        The Journal of Universal Acceptance
+        {SITE_TITLE}
       </strong>
 
       <p>
@@ -501,10 +587,21 @@ def site_footer():
 
     <div class="footer-links">
 
-      <a href="index.html">Home</a>
-      <a href="articles.html">Articles</a>
-      <a href="submit.html">Submit</a>
-      <a href="about.html">About</a>
+      <a href="{prefix}index.html">
+        Home
+      </a>
+
+      <a href="{prefix}articles.html">
+        Articles
+      </a>
+
+      <a href="{prefix}submit.html">
+        Submit
+      </a>
+
+      <a href="{prefix}about.html">
+        About
+      </a>
 
     </div>
 
@@ -518,7 +615,19 @@ def site_footer():
 # PAGE WRAPPER
 # ============================================================
 
-def make_page(title, body, active):
+def make_page(
+    title,
+    body,
+    active,
+    prefix=""
+):
+    """
+    Wrap content in the common site structure.
+
+    prefix:
+        ""     root pages
+        "../"  article pages
+    """
 
     return f"""<!DOCTYPE html>
 
@@ -535,21 +644,24 @@ def make_page(title, body, active):
 
   <title>
     {escape(title)}
-    | The Journal of Universal Acceptance
+    | {SITE_TITLE}
   </title>
 
   <meta
     name="description"
-    content="The Journal of Universal Acceptance"
+    content="{SITE_TITLE}"
   >
 
-  <link rel="stylesheet" href="style.css">
+  <link
+    rel="stylesheet"
+    href="{prefix}style.css"
+  >
 
 </head>
 
 <body>
 
-{site_header(active)}
+{site_header(active, prefix)}
 
 <main>
 
@@ -557,7 +669,7 @@ def make_page(title, body, active):
 
 </main>
 
-{site_footer()}
+{site_footer(prefix)}
 
 </body>
 
@@ -566,7 +678,7 @@ def make_page(title, body, active):
 
 
 # ============================================================
-# ARTICLE CARD
+# ARTICLE CARDS
 # ============================================================
 
 def article_card(article):
@@ -642,8 +754,8 @@ def build_homepage(articles):
     </p>
 
     <h1>
-  The Journal of Universal Acceptance
-</h1>
+      The Journal of Universal Acceptance
+    </h1>
 
     <p class="journal-subtitle">
       A multidisciplinary journal dedicated to the
@@ -763,7 +875,8 @@ def build_homepage(articles):
         make_page(
             "Home",
             body,
-            "home"
+            "home",
+            ""
         )
     )
 
@@ -819,7 +932,8 @@ def build_article_index(articles):
         make_page(
             "Articles",
             body,
-            "articles"
+            "articles",
+            ""
         )
     )
 
@@ -864,17 +978,13 @@ def build_article_pages(articles):
                 value
             )
 
-        # Article pages are one directory deeper,
-        # so they need the stylesheet one level up.
-        html = html.replace(
-            'href="style.css"',
-            'href="../style.css"'
-        )
-
+        # Article pages live inside /articles/,
+        # so all shared navigation and CSS need ../
         html = make_page(
             article["title"],
             html,
-            "articles"
+            "articles",
+            "../"
         )
 
         article_path = (
@@ -886,6 +996,10 @@ def build_article_pages(articles):
         write_file(
             article_path,
             html
+        )
+
+        print(
+            f"  Created: {article_path}"
         )
 
 
@@ -907,29 +1021,13 @@ def build_static_page(
     html = make_page(
         title,
         body,
-        active
+        active,
+        ""
     )
 
     write_file(
         SITE_DIR / output_name,
         html
-    )
-
-
-# ============================================================
-# FILE WRITING
-# ============================================================
-
-def write_file(path, content):
-
-    path.parent.mkdir(
-        parents=True,
-        exist_ok=True
-    )
-
-    path.write_text(
-        content,
-        encoding="utf-8"
     )
 
 
@@ -941,13 +1039,18 @@ def main():
 
     print("")
     print("=" * 60)
-    print("THE JOURNAL OF UNIVERSAL ACCEPTANCE")
+    print(SITE_TITLE)
     print("Building site...")
     print("=" * 60)
     print("")
 
-    # Start with a completely clean build directory.
+    # --------------------------------------------------------
+    # Clean old build
+    # --------------------------------------------------------
+
     if SITE_DIR.exists():
+
+        print("Cleaning old _site directory...")
 
         shutil.rmtree(
             SITE_DIR
@@ -957,31 +1060,35 @@ def main():
         parents=True
     )
 
-    # Read articles.
+    # --------------------------------------------------------
+    # Read articles
+    # --------------------------------------------------------
+
     articles = read_articles()
 
-    # Generate homepage.
+    # --------------------------------------------------------
+    # Build pages
+    # --------------------------------------------------------
+
+    print("")
     print("Building homepage...")
 
     build_homepage(
         articles
     )
 
-    # Generate archive.
     print("Building article archive...")
 
     build_article_index(
         articles
     )
 
-    # Generate individual articles.
-    print("Building article pages...")
+    print("Building individual articles...")
 
     build_article_pages(
         articles
     )
 
-    # Generate About page.
     print("Building About page...")
 
     build_static_page(
@@ -991,7 +1098,6 @@ def main():
         "about"
     )
 
-    # Generate Submit page.
     print("Building Submit page...")
 
     build_static_page(
@@ -1001,13 +1107,20 @@ def main():
         "submit"
     )
 
-    # Copy CSS.
+    # --------------------------------------------------------
+    # Copy stylesheet
+    # --------------------------------------------------------
+
     print("Copying stylesheet...")
 
     shutil.copy2(
         ROOT / "style.css",
         SITE_DIR / "style.css"
     )
+
+    # --------------------------------------------------------
+    # Finished
+    # --------------------------------------------------------
 
     print("")
     print("=" * 60)
@@ -1017,6 +1130,10 @@ def main():
     print("=" * 60)
     print("")
 
+
+# ============================================================
+# ENTRY POINT
+# ============================================================
 
 if __name__ == "__main__":
     main()
