@@ -139,10 +139,8 @@ a {
 
 .journal-banner h1 {
   max-width: 850px;
-
   margin: 0;
-
-  font-size: clamp(48px, 7vw, 88px);
+  font-size: clamp(36px, 5vw, 64px);
   line-height: 1.05;
   letter-spacing: -0.04em;
 }
