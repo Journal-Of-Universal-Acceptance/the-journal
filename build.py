@@ -17,17 +17,12 @@ SITE_DIR = ROOT / "_site"
 
 SITE_TITLE = "The Journal of Universal Acceptance"
 
-# Fictional DOI prefix.
-# This is intentionally NOT a registered DOI prefix.
+# Current journal volume and issue
+CURRENT_VOLUME = 1
+CURRENT_ISSUE = 1
+
+# Fake DOI prefix for the journal
 DOI_PREFIX = "10.0000/jua"
-
-# Number of issues published per volume.
-# With one issue per year, Volume 1 = 2026,
-# Volume 2 = 2027, etc.
-ISSUES_PER_VOLUME = 1
-
-# First publication year of the journal.
-FIRST_VOLUME_YEAR = 2026
 
 
 # ============================================================
@@ -79,6 +74,7 @@ def parse_front_matter(text):
     date: "2026-08-24"
     type: "Research Article"
     abstract: "Short description."
+    article_number: "001"
     submitted: "2026-08-20"
     accepted: "2026-08-24"
     keywords:
@@ -113,7 +109,7 @@ def parse_front_matter(text):
         if not stripped:
             continue
 
-        # YAML-style list item
+        # YAML-style keyword list
         if stripped.startswith("- ") and current_key == "keywords":
 
             keyword = stripped[2:].strip()
@@ -150,8 +146,11 @@ def parse_front_matter(text):
             value = value[1:-1]
 
         if key == "keywords" and not value:
+
             metadata[key] = []
+
         else:
+
             metadata[key] = value
 
     return metadata, content
@@ -387,54 +386,23 @@ def format_date(date):
 
 
 # ============================================================
-# VOLUME / ISSUE / DOI
+# DOI
 # ============================================================
 
-def calculate_volume_issue(date):
+def generate_doi(article_number):
     """
-    Calculate the volume and issue from the publication year.
-
-    Volume 1 begins in FIRST_VOLUME_YEAR.
-
-    With ISSUES_PER_VOLUME = 1:
-
-        2026 -> Volume 1, Issue 1
-        2027 -> Volume 2, Issue 1
-        2028 -> Volume 3, Issue 1
-
-    If ISSUES_PER_VOLUME is later increased, this function
-    can be expanded to divide the year into multiple issues.
-    """
-
-    volume = (
-        date.year
-        - FIRST_VOLUME_YEAR
-        + 1
-    )
-
-    if volume < 1:
-        volume = 1
-
-    issue = 1
-
-    return volume, issue
-
-
-def generate_doi(volume, article_number):
-    """
-    Generate the journal's fictional DOI.
+    Generate the journal DOI.
 
     Example:
 
-        10.0000/jua.1.1
-
-    This is a display identifier only and is not a registered DOI.
+    10.0000/jua.v1i1.001
     """
 
     return (
         f"{DOI_PREFIX}."
-        f"{volume}."
-        f"{article_number}"
+        f"v{CURRENT_VOLUME}"
+        f"i{CURRENT_ISSUE}"
+        f".{article_number}"
     )
 
 
@@ -472,7 +440,9 @@ def read_articles():
             text
         )
 
+        # ----------------------------------------------------
         # Validate metadata
+        # ----------------------------------------------------
 
         required_fields = [
             "title",
@@ -480,6 +450,7 @@ def read_articles():
             "date",
             "type",
             "abstract",
+            "article_number",
         ]
 
         missing = [
@@ -496,7 +467,9 @@ def read_articles():
                 f"Missing: {', '.join(missing)}"
             )
 
-        # Validate publication date
+        # ----------------------------------------------------
+        # Publication date
+        # ----------------------------------------------------
 
         date = parse_date(
             metadata["date"],
@@ -504,7 +477,9 @@ def read_articles():
             "publication"
         )
 
+        # ----------------------------------------------------
         # Submission date
+        # ----------------------------------------------------
 
         submitted_value = metadata.get(
             "submitted"
@@ -522,7 +497,9 @@ def read_articles():
 
             submitted_date = date
 
+        # ----------------------------------------------------
         # Acceptance date
+        # ----------------------------------------------------
 
         accepted_value = metadata.get(
             "accepted"
@@ -540,7 +517,35 @@ def read_articles():
 
             accepted_date = date
 
+        # ----------------------------------------------------
+        # Article number
+        # ----------------------------------------------------
+
+        article_number = str(
+            metadata["article_number"]
+        ).strip()
+
+        # Remove leading zeros temporarily
+        # so we can safely reformat the number.
+
+        try:
+
+            article_number = int(
+                article_number
+            )
+
+        except ValueError:
+
+            raise ValueError(
+                f"Invalid article_number in {path}. "
+                f"Use a number such as 001."
+            )
+
+        article_number = f"{article_number:03d}"
+
+        # ----------------------------------------------------
         # Keywords
+        # ----------------------------------------------------
 
         keywords = metadata.get(
             "keywords",
@@ -561,7 +566,9 @@ def read_articles():
                 "Universal Acceptance"
             ]
 
-        # Create slug
+        # ----------------------------------------------------
+        # Slug
+        # ----------------------------------------------------
 
         slug = slugify(
             metadata["title"]
@@ -573,7 +580,17 @@ def read_articles():
                 f"Could not create URL slug for: {path}"
             )
 
+        # ----------------------------------------------------
+        # DOI
+        # ----------------------------------------------------
+
+        doi = generate_doi(
+            article_number
+        )
+
+        # ----------------------------------------------------
         # Store article
+        # ----------------------------------------------------
 
         articles.append(
             {
@@ -594,58 +611,22 @@ def read_articles():
                 "type": metadata["type"],
                 "abstract": metadata["abstract"],
                 "keywords": keywords,
+                "article_number": article_number,
+                "doi": doi,
                 "content": markdown_to_html(
                     markdown
                 ),
             }
         )
 
+    # --------------------------------------------------------
     # Newest first
+    # --------------------------------------------------------
 
     articles.sort(
         key=lambda article: article["date"],
         reverse=True
     )
-
-    # Assign article numbers AFTER sorting.
-    #
-    # This means the newest article is article 1,
-    # the next newest is article 2, etc.
-    #
-    # If you want article numbers to remain permanently
-    # attached to articles even when new ones are published,
-    # we can instead store an explicit article_number in
-    # each Markdown file.
-
-    for index, article in enumerate(
-        articles,
-        start=1
-    ):
-
-        volume, issue = calculate_volume_issue(
-            article["date"]
-        )
-
-        article["article_number"] = index
-        article["volume"] = volume
-        article["issue"] = issue
-
-        article["volume_display"] = (
-            f"Volume {volume}"
-        )
-
-        article["issue_display"] = (
-            f"Issue {issue}"
-        )
-
-        article["volume_issue"] = (
-            f"Volume {volume}, Issue {issue}"
-        )
-
-        article["doi"] = generate_doi(
-            volume,
-            index
-        )
 
     print(
         f"Found {len(articles)} article(s)."
@@ -887,16 +868,6 @@ def build_homepage(articles):
 </p>
 """
 
-    if articles:
-
-        current_volume = articles[0]["volume"]
-        current_issue = articles[0]["issue"]
-
-    else:
-
-        current_volume = 1
-        current_issue = 1
-
     body = f"""
 <section class="journal-banner">
 
@@ -935,7 +906,7 @@ def build_homepage(articles):
       </p>
 
       <h2>
-        Volume {current_volume}, Issue {current_issue}
+        Volume {CURRENT_VOLUME}, Issue {CURRENT_ISSUE}
       </h2>
 
     </div>
@@ -1080,28 +1051,41 @@ def build_article_pages(articles):
         html = template
 
         replacements = {
+
             "{{TITLE}}": escape(
                 article["title"]
             ),
+
             "{{AUTHOR}}": escape(
                 article["author"]
             ),
+
             "{{DATE}}": escape(
                 article["date_display"]
             ),
+
             "{{TYPE}}": escape(
                 article["type"]
             ),
+
             "{{ABSTRACT}}": escape(
                 article["abstract"]
             ),
+
             "{{SUBMITTED}}": escape(
                 article["submitted_display"]
             ),
+
             "{{ACCEPTED}}": escape(
                 article["accepted_display"]
             ),
+
             "{{KEYWORDS}}": keyword_html,
+
+            "{{DOI}}": escape(
+                article["doi"]
+            ),
+
             "{{CONTENT}}": article["content"],
         }
 
@@ -1176,11 +1160,15 @@ def main():
     print("=" * 60)
     print("")
 
+    # --------------------------------------------------------
     # Clean old build
+    # --------------------------------------------------------
 
     if SITE_DIR.exists():
 
-        print("Cleaning old _site directory...")
+        print(
+            "Cleaning old _site directory..."
+        )
 
         shutil.rmtree(
             SITE_DIR
@@ -1190,11 +1178,15 @@ def main():
         parents=True
     )
 
+    # --------------------------------------------------------
     # Read articles
+    # --------------------------------------------------------
 
     articles = read_articles()
 
+    # --------------------------------------------------------
     # Build homepage
+    # --------------------------------------------------------
 
     print("")
     print("Building homepage...")
@@ -1203,25 +1195,37 @@ def main():
         articles
     )
 
-    # Build archive
+    # --------------------------------------------------------
+    # Build article archive
+    # --------------------------------------------------------
 
-    print("Building article archive...")
+    print(
+        "Building article archive..."
+    )
 
     build_article_index(
         articles
     )
 
-    # Build articles
+    # --------------------------------------------------------
+    # Build individual articles
+    # --------------------------------------------------------
 
-    print("Building individual articles...")
+    print(
+        "Building individual articles..."
+    )
 
     build_article_pages(
         articles
     )
 
+    # --------------------------------------------------------
     # Build About
+    # --------------------------------------------------------
 
-    print("Building About page...")
+    print(
+        "Building About page..."
+    )
 
     build_static_page(
         "about.html",
@@ -1230,9 +1234,13 @@ def main():
         "about"
     )
 
+    # --------------------------------------------------------
     # Build Submit
+    # --------------------------------------------------------
 
-    print("Building Submit page...")
+    print(
+        "Building Submit page..."
+    )
 
     build_static_page(
         "submit.html",
@@ -1241,13 +1249,20 @@ def main():
         "submit"
     )
 
+    # --------------------------------------------------------
     # Build Editorial Board
+    # --------------------------------------------------------
 
-    editorial_template = TEMPLATES_DIR / "editorial-board.html"
+    editorial_template = (
+        TEMPLATES_DIR
+        / "editorial-board.html"
+    )
 
     if editorial_template.exists():
 
-        print("Building Editorial Board page...")
+        print(
+            "Building Editorial Board page..."
+        )
 
         build_static_page(
             "editorial-board.html",
@@ -1256,16 +1271,22 @@ def main():
             "about"
         )
 
+    # --------------------------------------------------------
     # Copy CSS
+    # --------------------------------------------------------
 
-    print("Copying stylesheet...")
+    print(
+        "Copying stylesheet..."
+    )
 
     shutil.copy2(
         ROOT / "style.css",
         SITE_DIR / "style.css"
     )
 
+    # --------------------------------------------------------
     # Done
+    # --------------------------------------------------------
 
     print("")
     print("=" * 60)
