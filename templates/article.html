@@ -1,4 +1,4 @@
-<section class="article-shell">
+<div class="article-shell">
 
   <div class="container">
 
@@ -8,16 +8,16 @@
         Home
       </a>
 
-      <span>›</span>
+      <span>→</span>
 
       <a href="../articles.html">
         Articles
       </a>
 
-      <span>›</span>
+      <span>→</span>
 
       <span>
-        Article
+        {{TYPE}}
       </span>
 
     </div>
@@ -78,8 +78,7 @@
           </span>
 
           <strong class="reviewer-name">
-            Peer-reviewed by
-            Prof. Bartholomew Crumpet
+            Reviewed by the Editorial Board
           </strong>
 
         </div>
@@ -105,19 +104,28 @@
         <div class="sidebar-block">
 
           <span class="sidebar-label">
-            ARTICLE INFORMATION
+            DOI
+          </span>
+
+          <p class="citation">
+            {{DOI}}
+          </p>
+
+        </div>
+
+
+        <div class="sidebar-block">
+
+          <span class="sidebar-label">
+            VOLUME &amp; ISSUE
           </span>
 
           <p>
-            Open Access
+            Volume 1
           </p>
 
           <p>
-            Volume 1, Issue 1
-          </p>
-
-          <p>
-            Article
+            Issue 1
           </p>
 
         </div>
@@ -133,7 +141,7 @@
             Submitted
           </p>
 
-          <p>
+          <p class="citation">
             {{SUBMITTED}}
           </p>
 
@@ -141,24 +149,11 @@
             Accepted
           </p>
 
-          <p>
+          <p class="citation">
             {{ACCEPTED}}
           </p>
 
         </div>
-
-
-<div class="sidebar-block">
-
-  <span class="sidebar-label">
-    DOI
-  </span>
-
-  <p class="citation">
-    {{DOI}}
-  </p>
-
-</div>
 
 
         <div class="sidebar-block">
@@ -177,13 +172,14 @@
         <div class="sidebar-block sidebar-note">
 
           <span class="sidebar-label">
-            EDITORIAL NOTE
+            CITATION
           </span>
 
-          <p>
-            This article was accepted for publication
-            following a rigorous process of reading it
-            and deciding that it seemed fine.
+          <p class="citation">
+            {{AUTHOR}}.
+            "{{TITLE}}."
+            The Journal of Universal Acceptance.
+            {{DOI}}.
           </p>
 
         </div>
@@ -193,23 +189,23 @@
 
 
       <!-- =================================================
-           ARTICLE
+           ARTICLE CONTENT
       ================================================== -->
 
       <article class="article-content">
 
 
-        <div class="article-abstract">
+        <section class="article-abstract">
 
           <div class="abstract-heading">
-            ABSTRACT
+            Abstract
           </div>
 
           <p>
             {{ABSTRACT}}
           </p>
 
-        </div>
+        </section>
 
 
         <div class="article-body">
@@ -219,21 +215,21 @@
         </div>
 
 
-        <div class="article-end">
+        <footer class="article-end">
 
           <div class="article-end-mark">
-            ◆
+            ■
           </div>
 
           <p>
-            End of Article
+            End of article
           </p>
 
           <a href="../articles.html">
             Return to article archive →
           </a>
 
-        </div>
+        </footer>
 
 
       </article>
@@ -243,4 +239,4 @@
 
   </div>
 
-</section>
+</div>
