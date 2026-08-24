@@ -44,7 +44,7 @@ a {
 }
 
 .header-inner {
-  min-height: 92px;
+  min-height: 72px;
 
   display: flex;
   align-items: center;
