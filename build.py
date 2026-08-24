@@ -17,6 +17,18 @@ SITE_DIR = ROOT / "_site"
 
 SITE_TITLE = "The Journal of Universal Acceptance"
 
+# Fictional DOI prefix.
+# This is intentionally NOT a registered DOI prefix.
+DOI_PREFIX = "10.0000/jua"
+
+# Number of issues published per volume.
+# With one issue per year, Volume 1 = 2026,
+# Volume 2 = 2027, etc.
+ISSUES_PER_VOLUME = 1
+
+# First publication year of the journal.
+FIRST_VOLUME_YEAR = 2026
+
 
 # ============================================================
 # FILE HELPERS
@@ -106,7 +118,11 @@ def parse_front_matter(text):
 
             keyword = stripped[2:].strip()
 
-            if keyword.startswith('"') and keyword.endswith('"'):
+            if (
+                len(keyword) >= 2
+                and keyword.startswith('"')
+                and keyword.endswith('"')
+            ):
                 keyword = keyword[1:-1]
 
             if "keywords" not in metadata:
@@ -371,6 +387,58 @@ def format_date(date):
 
 
 # ============================================================
+# VOLUME / ISSUE / DOI
+# ============================================================
+
+def calculate_volume_issue(date):
+    """
+    Calculate the volume and issue from the publication year.
+
+    Volume 1 begins in FIRST_VOLUME_YEAR.
+
+    With ISSUES_PER_VOLUME = 1:
+
+        2026 -> Volume 1, Issue 1
+        2027 -> Volume 2, Issue 1
+        2028 -> Volume 3, Issue 1
+
+    If ISSUES_PER_VOLUME is later increased, this function
+    can be expanded to divide the year into multiple issues.
+    """
+
+    volume = (
+        date.year
+        - FIRST_VOLUME_YEAR
+        + 1
+    )
+
+    if volume < 1:
+        volume = 1
+
+    issue = 1
+
+    return volume, issue
+
+
+def generate_doi(volume, article_number):
+    """
+    Generate the journal's fictional DOI.
+
+    Example:
+
+        10.0000/jua.1.1
+
+    This is a display identifier only and is not a registered DOI.
+    """
+
+    return (
+        f"{DOI_PREFIX}."
+        f"{volume}."
+        f"{article_number}"
+    )
+
+
+# ============================================================
 # READ ARTICLES
 # ============================================================
 
@@ -538,6 +606,46 @@ def read_articles():
         key=lambda article: article["date"],
         reverse=True
     )
+
+    # Assign article numbers AFTER sorting.
+    #
+    # This means the newest article is article 1,
+    # the next newest is article 2, etc.
+    #
+    # If you want article numbers to remain permanently
+    # attached to articles even when new ones are published,
+    # we can instead store an explicit article_number in
+    # each Markdown file.
+
+    for index, article in enumerate(
+        articles,
+        start=1
+    ):
+
+        volume, issue = calculate_volume_issue(
+            article["date"]
+        )
+
+        article["article_number"] = index
+        article["volume"] = volume
+        article["issue"] = issue
+
+        article["volume_display"] = (
+            f"Volume {volume}"
+        )
+
+        article["issue_display"] = (
+            f"Issue {issue}"
+        )
+
+        article["volume_issue"] = (
+            f"Volume {volume}, Issue {issue}"
+        )
+
+        article["doi"] = generate_doi(
+            volume,
+            index
+        )
 
     print(
         f"Found {len(articles)} article(s)."
@@ -779,6 +887,16 @@ def build_homepage(articles):
 </p>
 """
 
+    if articles:
+
+        current_volume = articles[0]["volume"]
+        current_issue = articles[0]["issue"]
+
+    else:
+
+        current_volume = 1
+        current_issue = 1
+
     body = f"""
 <section class="journal-banner">
 
@@ -817,7 +935,7 @@ def build_homepage(articles):
       </p>
 
       <h2>
-        Volume 1, Issue 1
+        Volume {current_volume}, Issue {current_issue}
       </h2>
 
     </div>
