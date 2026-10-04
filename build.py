@@ -923,7 +923,7 @@ def build_homepage(articles):
 
     if latest:
 
-        cards = "\\n".join(
+        cards = "\n".join(
             article_card(article)
             for article in latest
         )
