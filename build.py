@@ -1,6 +1,7 @@
 from pathlib import Path
 from html import escape
 from datetime import datetime
+from zoneinfo import ZoneInfo
 import hashlib
 import re
 import shutil
@@ -900,10 +901,12 @@ def build_homepage(articles):
 
     # The homepage represents the current publication issue.
     # Older issues remain available in the full article archive.
-    today = datetime.now()
+    # Publication dates follow the journal's Australian timezone.
+    today = datetime.now(ZoneInfo("Australia/Sydney"))
+    publication_date = today.replace(hour=0, minute=0, second=0, microsecond=0)
 
     current_publication = get_publication_info(
-        today
+        publication_date
     )
 
     current_articles = [
@@ -912,7 +915,7 @@ def build_homepage(articles):
         if (
             article["volume"] == current_publication["volume"]
             and article["issue"] == current_publication["issue"]
-            and article["date"] <= today
+            and article["date"] <= publication_date
         )
     ]
 
