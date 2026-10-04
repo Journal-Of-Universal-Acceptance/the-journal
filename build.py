@@ -898,11 +898,29 @@ def article_card(article):
 
 def build_homepage(articles):
 
-    latest = articles[:3]
+    # The homepage represents the current publication issue.
+    # Older issues remain available in the full article archive.
+    today = datetime.now()
+
+    current_publication = get_publication_info(
+        today
+    )
+
+    current_articles = [
+        article
+        for article in articles
+        if (
+            article["volume"] == current_publication["volume"]
+            and article["issue"] == current_publication["issue"]
+            and article["date"] <= today
+        )
+    ]
+
+    latest = current_articles[:3]
 
     if latest:
 
-        cards = "\n".join(
+        cards = "\\n".join(
             article_card(article)
             for article in latest
         )
@@ -911,21 +929,12 @@ def build_homepage(articles):
 
         cards = """
 <p>
-  No articles have been published yet.
+  No articles have been published for this issue yet.
 </p>
 """
 
-    if articles:
-
-        latest_publication = articles[0]
-
-        volume_label = latest_publication["volume_label"]
-        issue_label = latest_publication["issue_label"]
-
-    else:
-
-        volume_label = "Volume 1"
-        issue_label = "Issue 1"
+    volume_label = current_publication["volume_label"]
+    issue_label = current_publication["issue_label"]
 
     body = f"""
 <section class="journal-banner">
