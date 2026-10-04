@@ -903,7 +903,7 @@ def build_homepage(articles):
     # Older issues remain available in the full article archive.
     # Publication dates follow the journal's Australian timezone.
     today = datetime.now(ZoneInfo("Australia/Sydney"))
-    publication_date = today.replace(hour=0, minute=0, second=0, microsecond=0)
+    publication_date = today.replace(hour=0, minute=0, second=0, microsecond=0, tzinfo=None)
 
     current_publication = get_publication_info(
         publication_date
